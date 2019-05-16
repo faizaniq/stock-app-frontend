@@ -31,7 +31,12 @@ class Login extends React.Component{
                 payload: data.user
             })
         localStorage.setItem("token", data.token)
+        this.props.history.push('/home')
         }) 
+        this.setState({
+            username: '',
+            password: ''
+        })
     }
 
     render(){

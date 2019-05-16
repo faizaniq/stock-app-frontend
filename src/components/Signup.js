@@ -33,6 +33,11 @@ class Signup extends React.Component {
                 payload: data.user
             })
         })
+        this.setState({
+            name: '',
+            username: '',
+            password: ''
+        })
     }
 
     render() {

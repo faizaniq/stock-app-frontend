@@ -3,24 +3,41 @@ import './App.css';
 import MainContainer from './containers/MainContainer'
 import { connect } from 'react-redux';
 
-function App(props) {
+class App extends React.Component {
 
-  function test(){
-    // let url = 'https://cloud.iexapis.com/stable/stock/fb/quote?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01'
-    let users = 'http://localhost:3000/users'
-    fetch(users)
-      .then(res => res.json())
-  } 
+  componentDidMount() {
+    const token = localStorage.getItem("token")
+    if (token) {
+      fetch('http://localhost:3000/auto_login', {
+          method: 'GET',
+          headers: {
+            Authorization: token
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.errors) {
+              alert(data.errors)
+          } else {
+            this.props.dispatch({
+                type: "NEW_USER",
+                payload: data
+            })
+         }
+      })
+    }
+  }
 
-  return (
-    <div className="App">
-    {console.log(props.user)}
-      <header className="App-header">
-       {test()}
-       <MainContainer />
-      </header>
-    </div>
-  );
+  render(){
+    return (
+      <div className="App">
+      {console.log(this.props.user)}
+        <header className="App-header">
+          <MainContainer />
+        </header>
+      </div>
+    );
+  }
 }
 
 const mapStateToProps = (state) => {
