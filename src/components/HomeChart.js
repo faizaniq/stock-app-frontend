@@ -9,24 +9,8 @@ class HomeChart extends React.Component {
         names: [],
         prices: [],
         volume: [],
-        dataVolume: {
-            labels: [],
-            datasets: [{
-                label: "Latest Price",
-                backgroundColor: "rgba(255, 0, 255, 0.75)",
-                data: []
-            }]
-        },
-        dataPrice: {
-            labels: [],
-            datasets: [{
-                label: "Latest Price",
-                backgroundColor: "rgba(255, 0, 255, 0.75)",
-                data: [],
-                lineTension: 0.0,
-                fill: false
-            }]
-        }
+        dataVolume: {},
+        dataPrice: {}
     }
 
     componentDidMount(){
@@ -55,10 +39,17 @@ class HomeChart extends React.Component {
                     labels: this.state.names,
                     datasets: [{
                         label: "Latest Price",
-                        backgroundColor: "rgba(0, 255, 0, 0.75)",
+                        backgroundColor: "rgba(75,192,192,1)",
                         data: this.state.prices,
                         lineTension: 0.0,
-                        fill: false
+                        fill: false,
+                        borderColor: "rgba(75,192,192,1)",
+                        pointHoverRadius: 2,
+                        pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                        pointHoverBorderColor: "rgba(220,220,220,1)",
+                        pointHoverBorderWidth: 2,
+                        pointRadius: 0,
+                        pointHitRadius: 2
                     }]
                 }
             })
@@ -67,7 +58,6 @@ class HomeChart extends React.Component {
     }
 
     render() {
-        console.log(this.state.dataVolume)
         return (
            <div >
                 < h3 > Most Active - Volume </h3>
