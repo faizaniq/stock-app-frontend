@@ -1,7 +1,8 @@
 import React from 'react'
+import HomeChart from './HomeChart'
+import Article from './Article'
 import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux';
-
 
 class Home extends React.Component{
 
@@ -19,14 +20,19 @@ class Home extends React.Component{
         })
     }
 
+    renderNews = () => {
+        return this.state.news.map(article => <Article key={article.datetime} article={article}/>)
+    
+    }
+
     
     render(){
-        let headlines = this.state.news.map(article => <ul><h5>{article.headline}</h5></ul>)
         console.log(this.state.news)
         return(
             <div>
                 home
-                {headlines}
+                <HomeChart/>
+                {this.renderNews()}
             </div>
         )
     }

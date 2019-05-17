@@ -18,6 +18,7 @@ function NavBar(props){
     return(
         <div>
             <NavLink to="/home">Home</NavLink>
+            <NavLink to="/research">Research</NavLink>
             {props.user ? null : <NavLink to="/login" >Login< /NavLink>}
             {props.user ? null : <NavLink to="/signup" >Signup< /NavLink>}
             {props.user ? <NavLink to={`/${props.user.id}/profile`} > Profile < /NavLink> : null}
