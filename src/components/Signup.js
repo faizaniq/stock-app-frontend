@@ -27,7 +27,8 @@ class Signup extends React.Component {
         })
         .then(res => res.json())
         .then(data => {
-            localStorage.setItem('token', data.token)
+            localStorage.setItem("token", data.token)
+            this.props.history.push('/home')
             this.props.dispatch({
                 type: "NEW_USER",
                 payload: data.user

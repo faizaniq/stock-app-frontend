@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom'
 
 
 
-class Profile extends React.Component {
+class MyPortfolio extends React.Component {
 
     render() {
         return (
@@ -25,4 +25,4 @@ const mapStateToProps = (state) => {
 };
 
 
-export default connect(mapStateToProps)(Profile)
+export default connect(mapStateToProps)(MyPortfolio)
