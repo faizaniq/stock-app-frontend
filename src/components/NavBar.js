@@ -21,7 +21,8 @@ function NavBar(props){
             <NavLink to="/research">Research</NavLink>
             {props.user ? null : <NavLink to="/login" >Login< /NavLink>}
             {props.user ? null : <NavLink to="/signup" >Signup< /NavLink>}
-            {props.user ? <NavLink to={`/${props.user.id}/profile`} > Profile < /NavLink> : null}
+            {props.user ? <NavLink to={`/${props.user.id}/myportfolio`} > My Portfolio< /NavLink> : null}
+            {props.user ? <NavLink to={`/${props.user.id}/watchlists`} > Watchlists < /NavLink> : null}
             {props.user ? <NavLink to="/home" onClick={logout}>Logout</NavLink> : null}
         </div>
     )

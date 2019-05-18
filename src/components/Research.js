@@ -15,7 +15,8 @@ class Research extends React.Component {
         stock: {},
         data: [],
         date: [],
-        chart: {}
+        chart: {},
+        watchStock: null
     }
 
     changeHandler = (e) => {
@@ -39,7 +40,7 @@ class Research extends React.Component {
             .then(data => {
                 data.map(p => {
                     close.push(p.close)
-                    date.push(p.date)
+                    time === "1d" ? date.push(p.minute) : date.push(p.date)
                 })
                 this.setState({
                     data: close,
@@ -74,8 +75,6 @@ class Research extends React.Component {
         })
     }
 
-    
-
     submitHandler = (e, getData) => {
         e.preventDefault()
         this.getData("5y", this.state.search,"5 year")
@@ -87,33 +86,70 @@ class Research extends React.Component {
     }
 
     oneMonth = () => {
-        this.getData("1m", this.state.currentSearch, "one day")        
+        this.getData("1m", this.state.currentSearch, "one month")
     }
 
     threeMonth = () => {
-        this.getData("3m", this.state.currentSearch, "one day")       
+        this.getData("3m", this.state.currentSearch, "three month")
     }
 
     sixMonth = () => {
-        this.getData("6m", this.state.currentSearch, "one day")        
+        this.getData("6m", this.state.currentSearch, "six month")
     }
 
     oneYear = () => {
-        this.getData("1y", this.state.currentSearch, "one day")
+        this.getData("1y", this.state.currentSearch, "one year")
     }
 
     twoYear = () => {
-        this.getData("2y", this.state.currentSearch, "one day")
+        this.getData("2y", this.state.currentSearch, "two year")
     }
 
     fiveYear = () => {
-        this.getData("5y", this.state.currentSearch, "one day")
+        this.getData("5y", this.state.currentSearch, "five year")
     }
 
-
-
+    addToWatchlist = () => {
+        if (this.props.user.watchlists.filter(stock => stock.ticker === this.state.stock.symbol).length === 0){
+            fetch(`http://localhost:3000/stocks`, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: this.state.stock.companyName,
+                    price: this.state.stock.latestPrice,
+                    ticker: this.state.stock.symbol
+                }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                fetch(`http://localhost:3000/watchlists`, {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        user_id: this.props.user.id,
+                        stock_id: data.id
+                    }),
+                })
+            .then(res => res.json())
+            .then(data => {
+                this.props.dispatch({
+                    type: "NEW_USER",
+                    payload: data.user
+                })
+            })
+        })
+    } else {
+        alert("This Already Exists In Your Watchlists!!!")
+    }
+}
+        
+    
+    
     render(){
-        console.log(this.state.chart)
         return (
         <div>
             <form onSubmit={this.submitHandler}>
@@ -128,8 +164,9 @@ class Research extends React.Component {
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.oneYear}>1 Year</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.twoYear}>2 Year</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.fiveYear}>5 Year</button> : null}
+            {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.addToWatchlist}>Add To Watch List</button> : null}
             <div style={{position:"relative", width:1300, height: 1000 }} >
-                {Object.keys(this.state.stock).length > 0 ? <Line ref="chart" data={this.state.chart} /> : <div class="ping">...</div>}
+                {Object.keys(this.state.stock).length > 0 ? <Line ref="chart" data={this.state.chart} /> : <div className="ping">...</div>}
             </div>
         </div> 
         )
