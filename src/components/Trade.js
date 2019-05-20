@@ -7,7 +7,7 @@ import '../App.css';
 import {companyTickers} from './companyTickers'
 
 
-class Research extends React.Component {
+class Trade     extends React.Component {
 
     state={
         currentSearch: "",
@@ -156,62 +156,8 @@ class Research extends React.Component {
         alert("This Already Exists In Your Watchlists!!!")
     }
 }
-   
-
-    purchaseStock = () => {
-        if (this.props.user.funds >= this.state.stock.latestPrice) {
-            fetch(`http://localhost:3000/trade/buy`, {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    name: this.state.stock.companyName,
-                    price: this.state.stock.latestPrice,
-                    ticker: this.state.stock.symbol,
-                    user_id: this.props.user.id,
-                }),
-            })
-            .then(res => res.json())
-            .then(data => {
-                fetch(`http://localhost:3000/users/${this.props.user.id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        funds: (data.user.funds - this.state.stock.latestPrice)
-                    }),
-                })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data)
-                this.props.dispatch({
-                    type: "NEW_STOCK",
-                    payload: data.investments                
-                }) 
-                this.props.dispatch({
-                    type: "PURCHASE",
-                    payload: data.funds
-                })
-            })
-        })
-    } else {
-        alert("Please Add More Funds To Place This Order!!!")
-        }
-    }
+        
     
-
-    sellStock = () => {
-        console.log("here")
-        fetch(`http://localhost:3000/stocks`, {
-            method: 'DELETE'
-            })
-        .then(res => res.json())
-        .then(console.log)
-    }
-
-
     
     render(){
         return (
@@ -229,8 +175,6 @@ class Research extends React.Component {
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.twoYear}>2 Year</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.fiveYear}>5 Year</button> : null}
             {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.addToWatchlist}>Add To Watch List</button> : null}
-            {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.purchaseStock}>Purchase Stock</button> : null}
-            {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.sellStock}>Sell Stock</button> : null}
             <div style={{position:"relative", width:1300, height: 1000 }} >
                 {Object.keys(this.state.stock).length > 0 ? <Line ref="chart" data={this.state.chart} /> : <div className="ping">...</div>}
             </div>
@@ -246,4 +190,5 @@ const mapStateToProps = (state) => {
 };
 
 
-export default connect(mapStateToProps)(Research)
+export default connect(mapStateToProps)(Trade
+)
