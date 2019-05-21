@@ -3,6 +3,8 @@ import HomeChart from './HomeChart'
 import Article from './Article'
 import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux';
+import '../App.css';
+
 
 class Home extends React.Component{
 
