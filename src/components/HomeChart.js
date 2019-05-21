@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux';
 import { Bar } from 'react-chartjs-2'
 import { Line } from 'react-chartjs-2'
+import '../App.css';
 
 class HomeChart extends React.Component {
 
@@ -60,7 +61,7 @@ class HomeChart extends React.Component {
     render() {
         return (
            <div >
-                < h3 > Most Active - Volume </h3>
+                < div > < h3 > Most Active - Volume < /h3></div >
                 <div style={{position:"relative", width:600, height: 450 }} >
                     <Bar ref="chart" data={this.state.dataVolume} />
                 </div>

@@ -13,6 +13,7 @@ class Research extends React.Component {
         currentSearch: "",
         search: "",
         stock: {},
+        quantity: null,
         data: [],
         date: [],
         chart: {},
@@ -21,11 +22,15 @@ class Research extends React.Component {
 
     changeHandler = (e) => {
         this.setState({
-            search: e.target.value,
+            search: e.target.value
         })
     }
 
-
+    quantityHandler = (e) => {
+        this.setState({
+            quantity: e.target.value
+        })
+    }
 
 
     getData = (time, search, title) => {
@@ -144,22 +149,25 @@ class Research extends React.Component {
                         stock_id: data.id
                     }),
                 })
-            .then(res => res.json())
-            .then(data => {
-                this.props.dispatch({
-                    type: "NEW_USER",
-                    payload: data.user
+                .then(res => res.json())
+                .then(data => {
+                    this.props.dispatch({
+                        type: "NEW_USER",
+                        payload: data.user
+                    })
                 })
             })
-        })
-    } else {
-        alert("This Already Exists In Your Watchlists!!!")
+        } else {
+            alert("This Already Exists In Your Watchlists!!!")
+        }
     }
-}
-   
 
-    purchaseStock = () => {
-        if (this.props.user.funds >= this.state.stock.latestPrice) {
+
+
+    purchaseStock = (e) => {
+        e.preventDefault()
+        if (this.props.user.funds >= (this.state.stock.latestPrice * this.state.quantity)) {
+            console.log(this.state.quantity)
             fetch(`http://localhost:3000/trade/buy`, {
                 method: 'POST',
                 headers: {
@@ -167,9 +175,10 @@ class Research extends React.Component {
                 },
                 body: JSON.stringify({
                     name: this.state.stock.companyName,
-                    price: this.state.stock.latestPrice,
+                    price: Number.parseFloat(this.state.stock.latestPrice).toFixed(2),
                     ticker: this.state.stock.symbol,
-                    user_id: this.props.user.id,
+                    quantity: this.state.quantity,
+                    user_id: this.props.user.id
                 }),
             })
             .then(res => res.json())
@@ -180,7 +189,7 @@ class Research extends React.Component {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        funds: (data.user.funds - this.state.stock.latestPrice)
+                        funds: (data.user.funds - (Number.parseFloat(this.state.stock.latestPrice).toFixed(2) * data.quantity))
                     }),
                 })
             .then(res => res.json())
@@ -203,17 +212,19 @@ class Research extends React.Component {
     
 
     sellStock = () => {
-        console.log("here")
-        fetch(`http://localhost:3000/stocks`, {
-            method: 'DELETE'
-            })
-        .then(res => res.json())
-        .then(console.log)
+        console.log(this.props.user.investments.find(s => s.ticker === this.state.stock.symbol))
+        // fetch(`http://localhost:3000/stocks`, {
+        //     method: 'DELETE'
+        //     })
+        // .then(res => res.json())
+        // .then(console.log)
     }
 
-
+            // {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.purchaseStock}>Purchase Stock</button> : null}
+    
     
     render(){
+        console.log(this.props.user)
         return (
         <div>
             <form onSubmit={this.submitHandler}>
@@ -229,7 +240,12 @@ class Research extends React.Component {
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.twoYear}>2 Year</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.fiveYear}>5 Year</button> : null}
             {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.addToWatchlist}>Add To Watch List</button> : null}
-            {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.purchaseStock}>Purchase Stock</button> : null}
+             <form onSubmit={this.purchaseStock}>
+                <input type="number" value={this.state.quantity} onChange={this.quantityHandler} />
+                <button type="submit">Buy</button>
+            </form>
+            
+            
             {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.sellStock}>Sell Stock</button> : null}
             <div style={{position:"relative", width:1300, height: 1000 }} >
                 {Object.keys(this.state.stock).length > 0 ? <Line ref="chart" data={this.state.chart} /> : <div className="ping">...</div>}
