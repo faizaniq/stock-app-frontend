@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 function NavBar(props){
 
     function logout(){
-        console.log(props)
         props.dispatch({
             type: "LOG_OUT"
         })
@@ -14,7 +13,6 @@ function NavBar(props){
     }
 
 
-    {console.log(props)}
     return(
         <div>
             <NavLink to="/home">Home</NavLink>

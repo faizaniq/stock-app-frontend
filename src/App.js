@@ -31,7 +31,6 @@ class App extends React.Component {
   render(){
     return (
       <div className="App">
-      {console.log(this.props.user)}
         <header className="App-header">
           <MainContainer />
         </header>
