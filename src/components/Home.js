@@ -24,12 +24,10 @@ class Home extends React.Component{
 
     renderNews = () => {
         return this.state.news.map(article => <Article key={article.datetime} article={article}/>)
-    
     }
 
     
     render(){
-        console.log(this.state.news)
         return(
             <div>
                 home

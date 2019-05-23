@@ -167,7 +167,6 @@ class Research extends React.Component {
     purchaseStock = (e) => {
         e.preventDefault()
         if (this.props.user.funds >= (this.state.stock.latestPrice * this.state.quantity)) {
-            console.log(this.state.quantity)
             fetch(`http://localhost:3000/trade/buy`, {
                 method: 'POST',
                 headers: {
@@ -177,7 +176,8 @@ class Research extends React.Component {
                     name: this.state.stock.companyName,
                     price: Number.parseFloat(this.state.stock.latestPrice).toFixed(2),
                     ticker: this.state.stock.symbol,
-                    quantity: this.state.quantity,
+                    current_quantity: this.state.quantity,
+                    original_quantity: this.state.quantity,
                     user_id: this.props.user.id
                 }),
             })
@@ -189,12 +189,11 @@ class Research extends React.Component {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        funds: (data.user.funds - (Number.parseFloat(this.state.stock.latestPrice).toFixed(2) * data.quantity))
+                        funds: (data.user.funds - (Number.parseFloat(this.state.stock.latestPrice).toFixed(2) * data.current_quantity))
                     }),
                 })
             .then(res => res.json())
             .then(data => {
-                console.log(data)
                 this.props.dispatch({
                     type: "NEW_STOCK",
                     payload: data.investments                
@@ -211,20 +210,19 @@ class Research extends React.Component {
     }
     
 
-    sellStock = () => {
-        console.log(this.props.user.investments.find(s => s.ticker === this.state.stock.symbol))
+    // sellStock = () => {
+    //     console.log(this.props.user.investments.find(s => s.ticker === this.state.stock.symbol))
         // fetch(`http://localhost:3000/stocks`, {
         //     method: 'DELETE'
         //     })
         // .then(res => res.json())
         // .then(console.log)
-    }
+    // }
 
             // {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.purchaseStock}>Purchase Stock</button> : null}
     
     
     render(){
-        console.log(this.props.user)
         return (
         <div>
             <form onSubmit={this.submitHandler}>

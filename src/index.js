@@ -25,13 +25,25 @@ function reducer(state = initialState, action) {
             return {
                 ...state, user: {...state.user, funds: action.payload}
             }
+        case "ADD_TO_TOTAL_FUNDS": 
+            return {
+                ...state, user: {...state.user, original_funds: action.payload}
+            }
         case "PURCHASE": 
             return {
                 ...state, user: {...state.user, funds: action.payload}
             }
-         case "NEW_STOCK": 
+        case "NEW_STOCK": 
             return {
                 ...state, user: {...state.user, investments: action.payload}
+            }
+        case "SELL_STOCK": 
+            return {
+                ...state, user: action.payload
+            }
+        case "PROFIT":
+            return {
+                ...state, user: {...state.user, funds: action.payload}
             }
             default:
                 return state
