@@ -1,8 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom'
-import { log } from 'util';
-import { thisExpression } from '@babel/types';
 import Stock from './Stock';
 
 
@@ -15,8 +13,11 @@ class MyPortfolio extends React.Component {
         ticker: "",
         quantity: "",
         stock: {},
-        profit: []
+        profit: [],
+        interval: false
     }
+
+    check = null
 
     componentDidMount() {
         let portfolio = []
@@ -25,7 +26,7 @@ class MyPortfolio extends React.Component {
                 return fetch(`https://api.iextrading.com/1.0/stock/${s.ticker}/price`)
                 .then(res => res.json())
                 .then(data => {
-                    portfolio.push({price: Number.parseFloat(data).toFixed(2), quantity: s.current_quantity})
+                    portfolio.push({price: Number.parseFloat(+data).toFixed(2), quantity: s.current_quantity})
                 })
             }
         })
@@ -84,18 +85,23 @@ class MyPortfolio extends React.Component {
 
 
     totalPortfolio = () => {
-        // return +this.totalInvestments() + +this.props.user.funds 
+        return +this.totalInvestments() + +this.props.user.funds 
     }
 
     currentPortfolioValue = () => {
-        // if (this.state.portfolio.length > 0) {
-        //     console.log(this.state.portfolio)
-        //     let investments = Number.parseFloat([...this.state.portfolio].map(s => (s.price * s.quantity)).reduce((accumulator, currentValue) => accumulator + currentValue)).toFixed(2)
-        //     return (Number.parseFloat(+this.props.user.funds + +investments).toFixed(2))
-        // }
+        if (this.state.portfolio.length > 0) {
+            let total = 0
+            this.state.portfolio.map(s => {
+                total = +this.props.user.funds + (+s.price * +s.quantity)
+            })
+            return total.toFixed(2)
+        } else {
+            return +this.props.user.funds.toFixed(2)
+        }
     }
 
     checkValue = () => {
+        console.log("interval")
         let portfolio = []
         let promisePortfolio = this.props.user.investments.map(s => {
             if (s.purchase === true) {
@@ -111,11 +117,30 @@ class MyPortfolio extends React.Component {
         .then(() => this.setState({portfolio: portfolio}))
     }
 
+    intervalHandler = () => {
+        this.setState({
+            interval: !this.state.interval
+        })
+    }
+
     tradeHandler = (e) => {
         this.setState({
             [e.target.name]: e.target.value
         })
     }
+
+    intervalStart = () => {
+        console.log('I am being called')
+        if (this.state.interval && !this.check){
+            console.log('setting interval')
+            this.check = setInterval(this.checkValue, 3000)
+        } else if(!this.state.interval && this.check) {
+            console.log('removing interval')
+            clearInterval(this.check)
+            this.check = null
+        }
+    }
+
 
     sell = (e) => {
         e.preventDefault()
@@ -124,7 +149,7 @@ class MyPortfolio extends React.Component {
         .then(stock => this.setState({
             stock: stock
         },() => {
-            fetch(`http://localhost:3000/trade/sell`, {
+            fetch(`http://localhost:3000/sell`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -151,9 +176,10 @@ class MyPortfolio extends React.Component {
 
 
     render() {
-        console.log("from store", this.props.user)
+        console.log(this.state.interval)
         return (
            <div>
+               {this.intervalStart()}
                 Name: {this.props.user.name}
                 <br/>
                 Cash Available: {
@@ -169,10 +195,10 @@ class MyPortfolio extends React.Component {
                     Number.parseFloat(this.props.user.original_funds).toFixed(2)
                 }
                 <br/>
-                Current Portfolio Value: {this.currentPortfolioValue()} <button onClick={this.checkValue}>Update</button>
+                Current Portfolio Value: {this.currentPortfolioValue()} <button onClick={this.intervalHandler}>Update</button>
                 <br/>
                 Percent Gain / Loss: {
-                   Number.parseFloat(((this.currentPortfolioValue() - this.totalPortfolio()) / this.totalPortfolio() * 100).toFixed(6)) + "%"
+                    (((+this.currentPortfolioValue() - +this.totalPortfolio()) / +this.totalPortfolio()) * 100).toFixed(6) + "%"
                 }
                  <form >
                     <input type="text" onChange={this.tradeHandler} name="ticker" value={this.state.ticker} placeholder="ticker"/>

@@ -92,7 +92,7 @@ class Research extends React.Component {
             this.setState({currentSearch: ticker})
             this.getData("5y", ticker, "5 year")
         }
-}
+    }
 
 
     oneDay = () => {
@@ -166,8 +166,9 @@ class Research extends React.Component {
 
     purchaseStock = (e) => {
         e.preventDefault()
+        console.log("beginning", this.props.user)
         if (this.props.user.funds >= (this.state.stock.latestPrice * this.state.quantity)) {
-            fetch(`http://localhost:3000/trade/buy`, {
+            fetch(`http://localhost:3000/buy`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -189,21 +190,23 @@ class Research extends React.Component {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        funds: (data.user.funds - (Number.parseFloat(this.state.stock.latestPrice).toFixed(2) * data.current_quantity))
+                        funds: (data.user.funds - (Number.parseFloat(this.state.stock.latestPrice).toFixed(2) * data.current_quantity)),
+                        original_funds: this.props.user.original_funds
                     }),
                 })
             .then(res => res.json())
             .then(data => {
-                this.props.dispatch({
-                    type: "NEW_STOCK",
-                    payload: data.investments                
-                }) 
+                // this.props.dispatch({
+                //     type: "NEW_STOCK",
+                //     payload: data.investments                
+                // }) 
                 this.props.dispatch({
                     type: "PURCHASE",
-                    payload: data.funds
+                    payload: data
                 })
             })
         })
+        console.log("end", this.props.user)
     } else {
         alert("Please Add More Funds To Place This Order!!!")
         }
