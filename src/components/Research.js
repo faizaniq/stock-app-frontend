@@ -5,6 +5,8 @@ import { Route } from 'react-router-dom'
 import { Line } from 'react-chartjs-2'
 import '../App.css';
 import {companyTickers} from './companyTickers'
+import { Icon, Input, Button, Message } from 'semantic-ui-react'
+import DefaultChart from './DefaultChart'
 
 
 class Research extends React.Component {
@@ -17,7 +19,8 @@ class Research extends React.Component {
         data: [],
         date: [],
         chart: {},
-        watchStock: null
+        watchStock: null,
+        logo: ""
     }
 
     changeHandler = (e) => {
@@ -81,16 +84,43 @@ class Research extends React.Component {
         })
     }
 
-    submitHandler = (e, getData) => {
+
+    getNews = (search) => {
+        fetch(`https://api.iextrading.com/1.0/stock/${search}/news`)
+        .then(res => res.json())
+        .then(console.log)
+    }
+
+    getLogo = (search) => {
+        fetch(`https://api.iextrading.com/1.0/stock/${search}/logo`)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                logo: data.url
+            })
+        })
+    }
+
+    submitHandler = (e, getData, getNews, getLogo) => {
         e.preventDefault()
         if (companyTickers.find(s => s.symbol.toLowerCase().includes(this.state.search)) && this.state.search.length > 0 && this.state.search !== " ") {
             this.setState({currentSearch: this.state.search})
             this.getData("5y", this.state.search,"5 year")
+            this.getNews(this.state.search)
+            this.getLogo(this.state.search)
         } 
         else if (companyTickers.find(s => s.name.toLowerCase().includes(this.state.search)) && this.state.search.length > 0 && this.state.search !== " ") {
             let ticker = companyTickers.find(s => s.name.toLowerCase().includes(this.state.search)).symbol
             this.setState({currentSearch: ticker})
             this.getData("5y", ticker, "5 year")
+            this.getNews(ticker)
+            this.getLogo(ticker)
+        } else {
+            return <Message
+                    error
+                    header="Company Not Found"
+                    content = "Please Enter a Valid Company Name or Ticker"
+                />
         }
     }
 
@@ -158,7 +188,11 @@ class Research extends React.Component {
                 })
             })
         } else {
-            alert("This Already Exists In Your Watchlists!!!")
+            return <Message
+                    error
+                    header='Cannot Add to Watchlist'
+                    content = 'This company already exists in your watchlist.'
+                />
         }
     }
 
@@ -196,10 +230,6 @@ class Research extends React.Component {
                 })
             .then(res => res.json())
             .then(data => {
-                // this.props.dispatch({
-                //     type: "NEW_STOCK",
-                //     payload: data.investments                
-                // }) 
                 this.props.dispatch({
                     type: "PURCHASE",
                     payload: data
@@ -208,48 +238,55 @@ class Research extends React.Component {
         })
         console.log("end", this.props.user)
     } else {
-        alert("Please Add More Funds To Place This Order!!!")
+        return <Message
+                    error
+                    header='Insufficient Funds'
+                    content = 'Please Add More Funds To Place This Order.'
+                />
         }
     }
     
 
-    // sellStock = () => {
-    //     console.log(this.props.user.investments.find(s => s.ticker === this.state.stock.symbol))
-        // fetch(`http://localhost:3000/stocks`, {
-        //     method: 'DELETE'
-        //     })
-        // .then(res => res.json())
-        // .then(console.log)
-    // }
-
-            // {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.purchaseStock}>Purchase Stock</button> : null}
-    
-    
     render(){
         return (
         <div>
-            <form onSubmit={this.submitHandler}>
-                <input type="text" value={this.state.search} onChange={this.changeHandler}/>
-                <button type="submit">Search</button>
-            </form>
-            {Object.keys(this.state.stock).length > 0 ? <Stock stock={this.state.stock}/> : null}
-            {Object.keys(this.state.stock).length > 0 ? <button onClick={this.oneDay}>1 Day</button> : null}
+            
+            <Input className="ui center aligned grid" icon={<Icon name='search'  inverted circular link onClick={this.submitHandler} />} placeholder='Search...' onChange={this.changeHandler}/>
+             <br/>
+            {Object.keys(this.state.stock).length > 0 ? null : <DefaultChart/>}
+            {Object.keys(this.state.stock).length > 0 ? <Stock stock={this.state.stock} logo={this.state.logo}/> : null}
+            <br/>
+            {Object.keys(this.state.stock).length > 0 ?
+                <Button.Group>
+                    <Button onClick={this.oneDay}>1 Day</Button>
+                    <Button onClick={this.oneMonth}>1 Month</Button>
+                    <Button onClick={this.threeMonth}>3 Months</Button>
+                    <Button onClick={this.sixMonth}>6 Months</Button>
+                    <Button onClick={this.oneYear}>1 Year</Button>
+                    <Button onClick={this.twoYear}>2 Year</Button>
+                    <Button onClick={this.fiveYear}>5 Year</Button>
+                    <Button onClick={this.addToWatchlist}>Add To Watchlist</Button>
+                </Button.Group> : null}
+
+
+
+            {/* {Object.keys(this.state.stock).length > 0 ? <button onClick={this.oneDay}>1 Day</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.oneMonth}>1 Month</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.threeMonth}>3 Months</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.sixMonth}>6 Months</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.oneYear}>1 Year</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.twoYear}>2 Year</button> : null}
             {Object.keys(this.state.stock).length > 0 ? <button onClick={this.fiveYear}>5 Year</button> : null}
-            {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.addToWatchlist}>Add To Watch List</button> : null}
+        
+            {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.addToWatchlist}>Add To Watch List</button> : null} */}
              <form onSubmit={this.purchaseStock}>
                 <input type="number" value={this.state.quantity} onChange={this.quantityHandler} />
                 <button type="submit">Buy</button>
             </form>
             
-            
             {Object.keys(this.state.stock).length > 0 && this.props.user ? <button onClick={this.sellStock}>Sell Stock</button> : null}
-            <div style={{position:"relative", width:1300, height: 1000 }} >
-                {Object.keys(this.state.stock).length > 0 ? <Line ref="chart" data={this.state.chart} /> : <div className="ping">...</div>}
+            <div style={{position:"relative", width:1300, height: 1000 }} className="ui middle aligned center aligned grid">
+                {Object.keys(this.state.stock).length > 0 ? <Line ref="chart" data={this.state.chart} /> : null}
             </div>
         </div> 
         )

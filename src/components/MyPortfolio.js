@@ -1,9 +1,8 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom'
-import Stock from './Stock';
-
-
+import { Table } from 'semantic-ui-react'
+import { Polar } from 'react-chartjs-2'
 
 
 class MyPortfolio extends React.Component {
@@ -14,24 +13,44 @@ class MyPortfolio extends React.Component {
         quantity: "",
         stock: {},
         profit: [],
-        interval: false
+        interval: false,
+        data: [],
+        labels: [],
+        datasets: {}
     }
 
     check = null
 
     componentDidMount() {
         let portfolio = []
+        console.log(this.props.user.investments)
         let promisePortfolio = this.props.user.investments.map(s => {
-            if (s.purchase === true) {
+            if (s.purchase === true && s.current_quantity > 0) {
+                this.setState(prevState => ({
+                    data: [...prevState.data, (s.current_quantity * s.price)],
+                    labels: [...prevState.labels, s.ticker]
+                }))
                 return fetch(`https://api.iextrading.com/1.0/stock/${s.ticker}/price`)
                 .then(res => res.json())
                 .then(data => {
-                    portfolio.push({price: Number.parseFloat(+data).toFixed(2), quantity: s.current_quantity})
+                    portfolio.push({company: s.company, ticker: s.ticker, costBasis: s.price, price: Number.parseFloat(+data).toFixed(2), quantity: s.current_quantity})
                 })
             }
         })
         Promise.all(promisePortfolio)
-        .then(() => this.setState({portfolio: portfolio}))
+        .then(() => this.setState({portfolio: portfolio.sort()}))
+        .then(() => {
+            this.setState({
+                datasets: {
+                        labels: [...this.state.labels, "Cash"],
+                        datasets: [{
+                            label: "Latest Price",
+                            backgroundColor: "rgba(75,192,192,1)",
+                            data: [...this.state.data, this.props.user.funds] 
+                        }]
+                }
+            })
+        })
     }
 
     fundHandler = (e) => {
@@ -63,6 +82,17 @@ class MyPortfolio extends React.Component {
                 type: "ADD_TO_TOTAL_FUNDS",
                 payload: data.original_funds
             })
+        }, () => {
+            this.setState({
+                datasets: {
+                    labels: [...this.state.labels, "Cash"],
+                    datasets: [{
+                        label: "Latest Price",
+                        backgroundColor: "rgba(75,192,192,1)",
+                        data: [...this.state.data, this.props.user.funds]
+                    }]
+                }
+            })
         })
         this.setState({
             funds: ""
@@ -90,31 +120,29 @@ class MyPortfolio extends React.Component {
 
     currentPortfolioValue = () => {
         if (this.state.portfolio.length > 0) {
-            let total = 0
+            let total = 0 
             this.state.portfolio.map(s => {
-                total = +this.props.user.funds + (+s.price * +s.quantity)
+                total = total + (+s.price * +s.quantity)
             })
-            return total.toFixed(2)
+            return (total + +this.props.user.funds).toFixed(2)
         } else {
             return +this.props.user.funds.toFixed(2)
         }
     }
 
     checkValue = () => {
-        console.log("interval")
         let portfolio = []
         let promisePortfolio = this.props.user.investments.map(s => {
             if (s.purchase === true) {
                 return fetch(`https://api.iextrading.com/1.0/stock/${s.ticker}/price`)
                 .then(res => res.json())
                 .then(data => {
-                    portfolio.push({price: Number.parseFloat(data).toFixed(2), quantity: s.current_quantity})
+                    portfolio.push({company: s.company, ticker: s.ticker, costBasis: Number.parseFloat(s.price).toFixed(2), price: Number.parseFloat(data).toFixed(2), quantity: s.current_quantity})
                 })
             }
         })
-
         Promise.all(promisePortfolio)
-        .then(() => this.setState({portfolio: portfolio}))
+        .then(() => this.setState({portfolio: portfolio.sort()}))
     }
 
     intervalHandler = () => {
@@ -130,12 +158,9 @@ class MyPortfolio extends React.Component {
     }
 
     intervalStart = () => {
-        console.log('I am being called')
         if (this.state.interval && !this.check){
-            console.log('setting interval')
             this.check = setInterval(this.checkValue, 3000)
         } else if(!this.state.interval && this.check) {
-            console.log('removing interval')
             clearInterval(this.check)
             this.check = null
         }
@@ -164,49 +189,121 @@ class MyPortfolio extends React.Component {
             })
             .then(res => res.json())
             .then(data => {
-                console.log("in .then", data)
                 this.props.dispatch({
                     type: "SELL_STOCK",
                     payload: data
                 })
             })
         }))
-       
+    }
+
+    showStocks = () => {
+        let totalPValue = 0
+        let totalCValue = 0
+            return( 
+                <Table celled>
+                    <Table.Header>
+                    <Table.Row>
+                        <Table.HeaderCell>Company</Table.HeaderCell>
+                        <Table.HeaderCell>Ticker</Table.HeaderCell>
+                        <Table.HeaderCell>Current Price</Table.HeaderCell>
+                        <Table.HeaderCell>Cost Basis</Table.HeaderCell>
+                        <Table.HeaderCell>Gain/Loss</Table.HeaderCell>
+                        <Table.HeaderCell>% Change</Table.HeaderCell>
+                        <Table.HeaderCell>Current Holdings</Table.HeaderCell>
+                        <Table.HeaderCell>Current Value</Table.HeaderCell>
+                    </Table.Row>
+                    </Table.Header>
+
+                    <Table.Body>
+                        {this.state.portfolio.map(s => {
+                            totalPValue = (totalPValue + (s.price * s.quantity))
+                            totalCValue = (totalCValue + (s.costBasis * s.quantity))
+                            if (s.costBasis < s.price) {
+
+                        return( < Table.Row positive >
+                                    <Table.Cell>{s.company}</Table.Cell>
+                                    <Table.Cell>{s.ticker}</Table.Cell>
+                                    <Table.Cell>${s.price}</Table.Cell>
+                                    <Table.Cell>${s.costBasis}</Table.Cell>
+                                    <Table.Cell>${Number.parseFloat(s.price - s.costBasis).toFixed(2)}</Table.Cell>
+                                    <Table.Cell>+{Number.parseFloat(((s.price - s.costBasis) / s.costBasis)).toFixed(4)}%</Table.Cell>
+                                    <Table.Cell>{s.quantity}</Table.Cell>
+                                    <Table.Cell>${(s.quantity * s.price)}</Table.Cell>
+                                </Table.Row>)
+                            } else if (s.costBasis === s.price) {
+                        return(  < Table.Row>
+                                    <Table.Cell>{s.company}</Table.Cell>
+                                    <Table.Cell>{s.ticker}</Table.Cell>
+                                    <Table.Cell>${s.price}</Table.Cell>
+                                    <Table.Cell>${s.costBasis}</Table.Cell>
+                                    <Table.Cell>${Number.parseFloat(s.price - s.costBasis).toFixed(2)}</Table.Cell>
+                                    <Table.Cell>{Number.parseFloat(((s.price - s.costBasis) / s.costBasis)).toFixed(4)}</Table.Cell>
+                                    <Table.Cell>{s.quantity}</Table.Cell>
+                                    <Table.Cell>${(s.quantity * s.price)}</Table.Cell>
+                                </Table.Row>) 
+                            } else {
+                        return(  < Table.Row negative>
+                                    <Table.Cell>{s.company}</Table.Cell>
+                                    <Table.Cell>{s.ticker}</Table.Cell>
+                                    <Table.Cell>${s.price}</Table.Cell>
+                                    <Table.Cell>${s.costBasis}</Table.Cell>
+                                    <Table.Cell>${Number.parseFloat(s.price - s.costBasis).toFixed(2)}</Table.Cell>                                    
+                                    <Table.Cell>{Number.parseFloat(((s.price - s.costBasis) / s.costBasis)).toFixed(4)}%</Table.Cell>
+                                    <Table.Cell>{s.quantity}</Table.Cell>
+                                    <Table.Cell>${(s.quantity * s.price)}</Table.Cell>
+
+                                </Table.Row>)
+                            }
+                        })
+                    }
+                    <Table.Row>
+                            <Table.Cell>Cash Available</Table.Cell>
+                            <Table.Cell>${Number.parseFloat(this.props.user.funds).toFixed(2)}</Table.Cell>
+                            <Table.Cell>Current Invested Value</Table.Cell>
+                            {totalCValue > totalPValue ? <Table.Cell negative>${Number.parseFloat(totalPValue).toFixed(2)}</Table.Cell> : <Table.Cell positive>${Number.parseFloat(totalPValue).toFixed(2)}</Table.Cell>}
+                            <Table.Cell>Total Portfolio Value</Table.Cell>
+                            <Table.Cell>${Number.parseFloat(totalPValue + this.props.user.funds).toFixed(2)}</Table.Cell>
+                            <Table.Cell>Total Gain/Loss</Table.Cell>
+                            {totalCValue > totalPValue ? <Table.Cell negative>${Number.parseFloat(totalPValue - totalCValue).toFixed(2)}</Table.Cell> : <Table.Cell positive>${Number.parseFloat(totalPValue - totalCValue).toFixed(2)}</Table.Cell>}
+                        </Table.Row>
+                    </Table.Body>
+                </Table>
+                )
     }
 
 
+
+
+
+
+
     render() {
-        console.log(this.state.interval)
+        console.log(this.state.portfolio, this.state.labels, this.state.data)
         return (
            <div>
                {this.intervalStart()}
-                Name: {this.props.user.name}
+               <Polar data={this.state.datasets}/>
                 <br/>
-                Cash Available: {
-                    this.props.user.funds ? Number.parseFloat(this.props.user.funds).toFixed(2) : 0
-                }
                 <form >
                     <input type="text" onChange={this.fundHandler} value={this.state.funds}/>
                     <button onClick={this.addFunds}>Add Funds</button>
                 </form>
-                Total Investment Value:  {this.props.user.investments.length > 0 ? this.totalInvestments() : 0}
-                <br/>
-                Original Portfolio Value: {
-                    Number.parseFloat(this.props.user.original_funds).toFixed(2)
-                }
-                <br/>
+               
                 Current Portfolio Value: {this.currentPortfolioValue()} <button onClick={this.intervalHandler}>Update</button>
-                <br/>
-                Percent Gain / Loss: {
-                    (((+this.currentPortfolioValue() - +this.totalPortfolio()) / +this.totalPortfolio()) * 100).toFixed(6) + "%"
-                }
+            
                  <form >
                     <input type="text" onChange={this.tradeHandler} name="ticker" value={this.state.ticker} placeholder="ticker"/>
                     <input type="integer" onChange={this.tradeHandler} name="quantity" value={this.state.quantity} placeholder="quantity"/>
                     <button onClick={this.sell}>Sell</button>
                 </form>
-           </div> 
+                Current Holdings
+                <br/>
+                {this.state.portfolio.length > 0 ? this.showStocks() : null}
 
+                  
+                
+           </div> 
         )
     }
 }

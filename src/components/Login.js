@@ -1,5 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux';
+import { Button, Form } from 'semantic-ui-react'
+
 
 class Login extends React.Component{
 
@@ -39,15 +41,23 @@ class Login extends React.Component{
         })
     }
 
-    render(){
-        return(
-            <div>
-                Login Here
-                <form onSubmit={this.submitHandler}>
+    /* <form onSubmit={this.submitHandler}>
                     <input placeholder="Username" name="username" onChange={this.changeHandler} value={this.state.username} type="text" />
                     <input placeholder="Password" name="password" onChange={this.changeHandler} value={this.state.password} type="password" />
                     <button type="submit">Login</button>
-                </form>
+                </form> */
+
+    render(){
+        return(
+            <div>
+                
+                <Form onSubmit={this.submitHandler}>
+                    <Form.Input label='Username' name='username' placeholder='username...' onChange={this.changeHandler} value={this.state.username}/>
+                    <Form.Input label='Password' name='password' placeholder='password...' onChange={this.changeHandler} type='password' value={this.state.password}/>
+                    <Button>Submit</Button>
+                </Form>
+
+
             </div>
         )
     }

@@ -1,23 +1,32 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom'
-
+import { Image, Item } from 'semantic-ui-react'
 
 
 class Stock extends React.Component {
 
     render() {
         return (
-           <div>
-               <h2>Name: {this.props.stock.companyName}</h2>
-               <p>Ticker Symbol: {this.props.stock.symbol}</p>
-               <p>Latest Price: {this.props.stock.latestPrice}</p>
-               <p>Sector: {this.props.stock.sector}</p>
-               <p>Exchange: {this.props.stock.primaryExchange}</p>
-               <p>Year To Date Change: {this.props.stock.ytdChange}%</p>
-               <p>Sector: {this.props.stock.sector}</p>
-               <p>52 Week Low: {this.props.stock.week52Low}</p>
-               <p>52 Week High: {this.props.stock.week52High}</p>
+            < div >
+              <Item.Group>
+                    <Item>
+                    <Item.Image size='small' src={this.props.logo} />
+
+                    <Item.Content>
+                        <Item.Header as='a'>{this.props.stock.companyName}</Item.Header>
+                        <Item.Meta>{this.props.stock.symbol}</Item.Meta>
+                        <Item.Description>
+                            {this.props.stock.primaryExchange}
+                        </Item.Description>
+                        <Item.Extra>Sector: {this.props.stock.sector}</Item.Extra>
+                        <Item.Extra>Current Price: {this.props.stock.latestPrice}</Item.Extra>
+                        <Item.Extra>52 Week Low{this.props.stock.week52High}</Item.Extra>                        
+                        <Item.Extra>52 Week High: {this.props.stock.week52Low}</Item.Extra>
+                        <Item.Extra>Year To Date Change: {this.props.stock.ytdChange}%</Item.Extra>
+                    </Item.Content>
+                    </Item>
+                </Item.Group>
            </div> 
         )
     }
