@@ -8,11 +8,7 @@ class StockWatch extends React.Component {
         console.log(this.props.stock)
         return (
            <div>
-               Name: {this.props.stock.company}
-               <br/>
-               Ticker: {this.props.stock.ticker}
-               <br/>
-               Price: {this.props.stock.price}
+               Name: {this.props.stock.company} Ticker: {this.props.stock.ticker} Price: {this.props.stock.price}
            </div> 
 
         )

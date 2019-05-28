@@ -12,16 +12,15 @@ function NavBar(props){
         localStorage.removeItem("token")
     }
 
-
     return(
-        <div>
-            <NavLink to="/home">Home</NavLink>
-            <NavLink to="/research">Research</NavLink>
-            {props.user ? null : <NavLink to="/login" >Login< /NavLink>}
-            {props.user ? null : <NavLink to="/signup" >Signup< /NavLink>}
-            {props.user ? <NavLink to={`/${props.user.id}/myportfolio`} > My Portfolio< /NavLink> : null}
-            {props.user ? <NavLink to={`/${props.user.id}/watchlists`} > Watchlists < /NavLink> : null}
-            {props.user ? <NavLink to="/home" onClick={logout}>Logout</NavLink> : null}
+        <div className="ui fluid five item inverted menu">
+            <NavLink className="item" to="/home">Home</NavLink>
+            <NavLink className="item" to="/research">Research</NavLink>
+            {props.user ? null : <NavLink className="item" to="/login" >Login</NavLink>}
+            {props.user ? null : <NavLink className="item" to="/signup" >Signup</NavLink>}
+            {props.user ? <NavLink className="item" to={`/${props.user.id}/myportfolio`} > My Portfolio</NavLink> : null}
+            {props.user ? <NavLink className="item" to={`/${props.user.id}/watchlists`} > Watchlists </NavLink> : null}
+            {props.user ? <NavLink className="item" to="/home" onClick={logout}>Logout</NavLink> : null}
         </div>
     )
 }

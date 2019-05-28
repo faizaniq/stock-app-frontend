@@ -10,13 +10,27 @@ import { connect } from 'react-redux';
 import { Route } from 'react-router-dom'
 
 
-
 class MainContainer extends React.Component {
+    
+
+    //  <Menu inverted>
+    //     <Menu.Item name='home' active={activeItem === 'home'} onClick={this.handleItemClick} />
+    //     <Menu.Item
+    //       name='messages'
+    //       active={activeItem === 'messages'}
+    //       onClick={this.handleItemClick}
+    //     />
+    //     <Menu.Item
+    //       name='friends'
+    //       active={activeItem === 'friends'}
+    //       onClick={this.handleItemClick}
+    //     />
+    //   </Menu>
+
 
     render() {
         return (
            <div>
-               maincontainer
                <NavBar />
                <Route exact path="/home" component= {Home}/>
                <Route exact path={`/${this.props.user.id}/myportfolio`} component={MyPortfolio}/>
@@ -25,7 +39,7 @@ class MainContainer extends React.Component {
                <Route exact path="/research" component={Research} /> 
                <Route exact path={`/${this.props.user.id}/watchlists`} component={Watchlists} /> 
            </div> 
-
+           
         )
     }
 }

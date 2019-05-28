@@ -1,5 +1,4 @@
 import React from 'react'
-import HomeChart from './HomeChart'
 import Article from './Article'
 import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux';
@@ -31,7 +30,6 @@ class Home extends React.Component{
         return(
             <div>
                 home
-                <HomeChart/>
                 {this.renderNews()}
             </div>
         )
