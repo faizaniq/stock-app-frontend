@@ -7,6 +7,7 @@ import { Image, Item } from 'semantic-ui-react'
 class Stock extends React.Component {
 
     render() {
+        console.log(this.props.stock)
         return (
             < div >
               <Item.Group>
@@ -14,16 +15,16 @@ class Stock extends React.Component {
                     <Item.Image size='small' src={this.props.logo} />
 
                     <Item.Content>
-                        <Item.Header as='a'>{this.props.stock.companyName}</Item.Header>
+                        <Item.Header>{this.props.stock.companyName}</Item.Header>
                         <Item.Meta>{this.props.stock.symbol}</Item.Meta>
                         <Item.Description>
                             {this.props.stock.primaryExchange}
                         </Item.Description>
-                        <Item.Extra>Sector: {this.props.stock.sector}</Item.Extra>
-                        <Item.Extra>Current Price: {this.props.stock.latestPrice}</Item.Extra>
-                        <Item.Extra>52 Week Low{this.props.stock.week52High}</Item.Extra>                        
-                        <Item.Extra>52 Week High: {this.props.stock.week52Low}</Item.Extra>
-                        <Item.Extra>Year To Date Change: {this.props.stock.ytdChange}%</Item.Extra>
+                        <Item.Meta>Sector: {this.props.stock.sector}</Item.Meta>
+                        <Item.Meta>Current Price: {this.props.stock.latestPrice} at {this.props.stock.latestTime}</Item.Meta>
+                        <Item.Meta>52 Week Low: {this.props.stock.week52High}</Item.Meta>
+                        <Item.Meta>52 Week High: {this.props.stock.week52Low}</Item.Meta>
+                        <Item.Meta>Year To Date Change: {this.props.stock.ytdChange}%</Item.Meta>
                     </Item.Content>
                     </Item>
                 </Item.Group>
