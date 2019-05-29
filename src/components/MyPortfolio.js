@@ -1,7 +1,8 @@
 import React from 'react'
+import Watchlists from './Watchlists'
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom'
-import { Table } from 'semantic-ui-react'
+import { Table, Grid, Accordion, Icon } from 'semantic-ui-react'
 import { Polar } from 'react-chartjs-2'
 
 
@@ -16,19 +17,32 @@ class MyPortfolio extends React.Component {
         interval: false,
         data: [],
         labels: [],
-        datasets: {}
+        datasets: {}, 
+        background: [],
+        activeIndex: 0
     }
 
     check = null
 
+    getColor = () => {
+        let str = '0123456789ABCDEF'
+        let color = "#"
+        for (let i = 0; i < 6; i++) {
+            color += str[Math.floor(Math.random() * 16)]
+        }
+        return color
+    }
+
     componentDidMount() {
         let portfolio = []
+        let background = []
         console.log(this.props.user.investments)
         let promisePortfolio = this.props.user.investments.map(s => {
             if (s.purchase === true && s.current_quantity > 0) {
                 this.setState(prevState => ({
                     data: [...prevState.data, (s.current_quantity * s.price)],
-                    labels: [...prevState.labels, s.ticker]
+                    labels: [...prevState.labels, s.ticker], 
+                    background: [...prevState.background, this.getColor()]
                 }))
                 return fetch(`https://api.iextrading.com/1.0/stock/${s.ticker}/price`)
                 .then(res => res.json())
@@ -45,7 +59,7 @@ class MyPortfolio extends React.Component {
                         labels: [...this.state.labels, "Cash"],
                         datasets: [{
                             label: "Latest Price",
-                            backgroundColor: "rgba(75,192,192,1)",
+                            backgroundColor: this.state.background,
                             data: [...this.state.data, this.props.user.funds] 
                         }]
                 }
@@ -82,14 +96,13 @@ class MyPortfolio extends React.Component {
                 type: "ADD_TO_TOTAL_FUNDS",
                 payload: data.original_funds
             })
-        }, () => {
             this.setState({
                 datasets: {
                     labels: [...this.state.labels, "Cash"],
                     datasets: [{
                         label: "Latest Price",
-                        backgroundColor: "rgba(75,192,192,1)",
-                        data: [...this.state.data, this.props.user.funds]
+                        backgroundColor: this.state.background,
+                        data: [...this.state.data, data.funds]
                     }]
                 }
             })
@@ -98,6 +111,7 @@ class MyPortfolio extends React.Component {
             funds: ""
         })
     }
+
     
     totalInvestments = () => {
         if (this.props.user.investments.length === 0) {
@@ -167,36 +181,6 @@ class MyPortfolio extends React.Component {
     }
 
 
-    sell = (e) => {
-        e.preventDefault()
-        fetch(`https://api.iextrading.com/1.0/stock/${this.state.ticker}/quote`)
-        .then(res => res.json())
-        .then(stock => this.setState({
-            stock: stock
-        },() => {
-            fetch(`http://localhost:3000/sell`, {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    name: this.state.stock.companyName,
-                    price: Number.parseFloat(this.state.stock.latestPrice).toFixed(2),
-                    ticker: this.state.stock.symbol,
-                    current_quantity: this.state.quantity,
-                    user_id: this.props.user.id
-                }),
-            })
-            .then(res => res.json())
-            .then(data => {
-                this.props.dispatch({
-                    type: "SELL_STOCK",
-                    payload: data
-                })
-            })
-        }))
-    }
-
     showStocks = () => {
         let totalPValue = 0
         let totalCValue = 0
@@ -229,7 +213,7 @@ class MyPortfolio extends React.Component {
                                     <Table.Cell>${Number.parseFloat(s.price - s.costBasis).toFixed(2)}</Table.Cell>
                                     <Table.Cell>+{Number.parseFloat(((s.price - s.costBasis) / s.costBasis)).toFixed(4)}%</Table.Cell>
                                     <Table.Cell>{s.quantity}</Table.Cell>
-                                    <Table.Cell>${(s.quantity * s.price)}</Table.Cell>
+                                    <Table.Cell>${Number.parseFloat(s.quantity * s.price).toFixed(2)}</Table.Cell>
                                 </Table.Row>)
                             } else if (s.costBasis === s.price) {
                         return(  < Table.Row>
@@ -240,7 +224,7 @@ class MyPortfolio extends React.Component {
                                     <Table.Cell>${Number.parseFloat(s.price - s.costBasis).toFixed(2)}</Table.Cell>
                                     <Table.Cell>{Number.parseFloat(((s.price - s.costBasis) / s.costBasis)).toFixed(4)}</Table.Cell>
                                     <Table.Cell>{s.quantity}</Table.Cell>
-                                    <Table.Cell>${(s.quantity * s.price)}</Table.Cell>
+                                    <Table.Cell>${Number.parseFloat(s.quantity * s.price).toFixed(2)}</Table.Cell>
                                 </Table.Row>) 
                             } else {
                         return(  < Table.Row negative>
@@ -251,8 +235,7 @@ class MyPortfolio extends React.Component {
                                     <Table.Cell>${Number.parseFloat(s.price - s.costBasis).toFixed(2)}</Table.Cell>                                    
                                     <Table.Cell>{Number.parseFloat(((s.price - s.costBasis) / s.costBasis)).toFixed(4)}%</Table.Cell>
                                     <Table.Cell>{s.quantity}</Table.Cell>
-                                    <Table.Cell>${(s.quantity * s.price)}</Table.Cell>
-
+                                    <Table.Cell>${Number.parseFloat(s.quantity * s.price).toFixed(2)}</Table.Cell>
                                 </Table.Row>)
                             }
                         })
@@ -272,35 +255,99 @@ class MyPortfolio extends React.Component {
                 )
     }
 
+    handleClick = (e, titleProps) => {
+        const { index } = titleProps
+        const { activeIndex } = this.state
+        const newIndex = activeIndex === index ? -1 : index
+        this.setState({ activeIndex: newIndex })
+    }
 
+    transactions = () => {
+            return( 
+                <Table celled>
+                    <Table.Header>
+                    <Table.Row>
+                        <Table.HeaderCell>Company</Table.HeaderCell>
+                        <Table.HeaderCell>Ticker</Table.HeaderCell>
+                        <Table.HeaderCell>Purchase/Sale</Table.HeaderCell>
+                        <Table.HeaderCell>Cost Basis/Sale Price</Table.HeaderCell>
+                        <Table.HeaderCell>Purchase/Sale Quantity</Table.HeaderCell>
+                        <Table.HeaderCell>Total Transaction</Table.HeaderCell>
+                    </Table.Row>
+                    </Table.Header>
 
-
-
+                    <Table.Body>
+                        {this.props.user.investments.map(s => {
+                    return  (< Table.Row>
+                                <Table.Cell>{s.company}</Table.Cell>
+                                <Table.Cell>{s.ticker}</Table.Cell>
+                            <Table.Cell>{s.purchase ? "Purchase" : "Sale"}</Table.Cell>
+                                <Table.Cell>${s.price}</Table.Cell>
+                                <Table.Cell>{s.purchase ? s.original_quantity : s.current_quantity}</Table.Cell>
+                                <Table.Cell>{s.purchase ? `$${Number.parseFloat(s.original_quantity * s.price).toFixed(2)}` : `$${Number.parseFloat(s.current_quantity * s.price).toFixed(2)}`}</Table.Cell>
+                            </Table.Row>)
+                            })
+                    }
+                    </Table.Body>
+                </Table>
+            )
+    }
 
 
     render() {
-        console.log(this.state.portfolio, this.state.labels, this.state.data)
+        const { activeIndex } = this.state        
         return (
            <div>
                {this.intervalStart()}
-               <Polar data={this.state.datasets}/>
+               <Grid>
+                   <Grid.Column width={8} className='ui two column centered grid'>
+                        <Polar data={this.state.datasets}/>
+                    </Grid.Column>
+                    <Grid.Column width={6} className='ui two column centered grid'>
+                        <Accordion fluid styled>
+                            <Accordion.Title active={activeIndex === 2} index={2} onClick={this.handleClick}>
+                            <Icon name='dropdown' />
+                            Watchlist
+                            </Accordion.Title>
+                            <Accordion.Content active={activeIndex === 2}>
+                            <p>
+                            <Watchlists />
+                            </p>
+                            </Accordion.Content>
+                        </Accordion>
+                    </Grid.Column>
+                </Grid>
                 <br/>
                 <form >
                     <input type="text" onChange={this.fundHandler} value={this.state.funds}/>
                     <button onClick={this.addFunds}>Add Funds</button>
                 </form>
                
-                Current Portfolio Value: {this.currentPortfolioValue()} <button onClick={this.intervalHandler}>Update</button>
+                <button onClick={this.intervalHandler}>Update</button>
             
-                 <form >
-                    <input type="text" onChange={this.tradeHandler} name="ticker" value={this.state.ticker} placeholder="ticker"/>
-                    <input type="integer" onChange={this.tradeHandler} name="quantity" value={this.state.quantity} placeholder="quantity"/>
-                    <button onClick={this.sell}>Sell</button>
-                </form>
-                Current Holdings
+                 
                 <br/>
-                {this.state.portfolio.length > 0 ? this.showStocks() : null}
-
+                 <Accordion fluid styled>
+                    <Accordion.Title active={activeIndex === 0} index={0} onClick={this.handleClick}>
+                    <Icon name='dropdown' />
+                    Current Holdings
+                    </Accordion.Title>
+                    <Accordion.Content active={activeIndex === 0}>
+                    <p>
+                       {this.state.portfolio.length > 0 ? this.showStocks() : null}
+                    </p>
+                    </Accordion.Content>
+                    <Accordion.Title active={activeIndex === 1} index={1} onClick={this.handleClick}>
+                    <Icon name='dropdown' />
+                    Transaction History
+                    </Accordion.Title>
+                    <Accordion.Content active={activeIndex === 1}>
+                    <p>
+                       {this.transactions()}
+                    </p>
+                    </Accordion.Content>
+                    
+                </Accordion>
                   
                 
            </div> 

@@ -2,6 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux';
 import { Bar } from 'react-chartjs-2'
 import { Line } from 'react-chartjs-2'
+import { Icon, Input, Button, Message, Modal, Header, Grid } from 'semantic-ui-react'
+
 import '../App.css';
 
 class DefaultChart extends React.Component {
@@ -11,8 +13,18 @@ class DefaultChart extends React.Component {
         gainPrices: [],
         loseNames: [],
         losePrices: [],
+        background: [],
         dataLoss: {},
         dataGain: {}
+    }
+
+    getColor = () => {
+        let str = '0123456789ABCDEF'
+        let color = "#"
+        for (let i = 0; i < 6; i++) {
+            color += str[Math.floor(Math.random() * 16)]
+        }
+        return color
     }
 
     componentDidMount(){
@@ -21,7 +33,8 @@ class DefaultChart extends React.Component {
         .then(data => { data.map(s => {
                     this.setState({
                         gainNames: [...this.state.gainNames, s.symbol],
-                        gainPrices: [...this.state.gainPrices, s.latestPrice]
+                        gainPrices: [...this.state.gainPrices, s.latestPrice],
+                        background: [...this.state.background, this.getColor()]
                     })
                 }
             )
@@ -32,7 +45,7 @@ class DefaultChart extends React.Component {
                     labels: this.state.gainNames,
                     datasets: [{
                         label: "Latest Price",
-                        backgroundColor: "rgba(75,192,192,1)",
+                        backgroundColor: this.state.background,
                         data: this.state.gainPrices,
                         lineTension: 0.0,
                         fill: false,
@@ -64,7 +77,7 @@ class DefaultChart extends React.Component {
                     labels: this.state.loseNames,
                     datasets: [{
                         label: "Latest Price",
-                        backgroundColor: "rgba(75,192,192,1)",
+                        backgroundColor: this.state.background,
                         data: this.state.losePrices,
                         lineTension: 0.0,
                         fill: false,
@@ -84,16 +97,16 @@ class DefaultChart extends React.Component {
 
     render() {
         return (
-           <div >
-               < h3 > Gainers </h3>
-               <div style={{position:"relative", width:600, height: 450 }} >
-                   <Bar ref="chart" data={this.state.dataGain} />
-               </div>
-                < div > < h3 > Losers < /h3></div >
-                <div style={{position:"relative", width:600, height: 450 }} >
+           <Grid className='ui two column centered grid'>
+               <Grid.Column width={7} >
+                    < h3 > Gainers </h3>
+                    <Bar ref="chart" data={this.state.dataGain} />
+                </Grid.Column>
+                <Grid.Column width={7}>
+                    < h3 > Losers </h3>
                     <Bar ref="chart" data={this.state.dataLoss} />
-                </div>
-           </div> 
+                </Grid.Column>
+           </Grid> 
 
         )
     }
