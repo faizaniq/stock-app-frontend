@@ -44,7 +44,9 @@ class Signup extends React.Component {
 
     render() {
         return (
-            <Grid>
+            <React.Fragment>
+            <img src= "./Logo.png" width="10%" style={{marginLeft: "40%", marginBottom: 0}}/>
+            <Grid style={{marginTop: "5%", border: "2px solid gray", width: "40%", marginLeft: "25%"}}>
                 <Grid.Column width={8} className='ui centered'>
                      <Form onSubmit={this.submitHandler}>
                         <Form.Field>
@@ -63,7 +65,7 @@ class Signup extends React.Component {
                     </Form>
                 </Grid.Column>
             </Grid>
-
+            </React.Fragment>
         )
     }
 }

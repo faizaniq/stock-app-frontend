@@ -43,12 +43,15 @@ class Login extends React.Component{
 
     render(){
         return(
-            <Grid>
+            <React.Fragment>
+            <img src= "./Logo.png" width="10%" style={{marginLeft: "40%", marginBottom: 0}}/>
+            
+            <Grid style={{marginTop: "5%", border: "2px solid gray", width: "40%", marginLeft: "25%"}}>
                 <Grid.Column width={8} className='ui centered'>
                      <Form onSubmit={this.submitHandler}>
                         <Form.Field>
                         <label>Username</label>
-                        <input placeholder='Username' name="username" onChange={this.changeHandler} value={this.state.username}/>
+                        <input placeholder='Username' name="username" onChange={this.changeHandler} value={this.state.username} style={{width: "100%"}}/>
                         </Form.Field>
                         <Form.Field>
                         <label>Password</label>
@@ -58,8 +61,8 @@ class Login extends React.Component{
                     </Form>
                 </Grid.Column>
             </Grid>
-
-
+        
+        </React.Fragment> 
         )
     }
 }
