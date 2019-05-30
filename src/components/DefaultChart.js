@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux';
 import { Bar } from 'react-chartjs-2'
 import { Line } from 'react-chartjs-2'
-import { Icon, Input, Button, Message, Modal, Header, Grid } from 'semantic-ui-react'
+import { Icon, Input, Button, Message, Modal, Header, Grid, Loader } from 'semantic-ui-react'
 
 import '../App.css';
 
@@ -13,7 +13,6 @@ class DefaultChart extends React.Component {
         gainPrices: [],
         loseNames: [],
         losePrices: [],
-        background: [],
         dataLoss: {},
         dataGain: {}
     }
@@ -33,8 +32,7 @@ class DefaultChart extends React.Component {
         .then(data => { data.map(s => {
                     this.setState({
                         gainNames: [...this.state.gainNames, s.symbol],
-                        gainPrices: [...this.state.gainPrices, s.latestPrice],
-                        background: [...this.state.background, this.getColor()]
+                        gainPrices: [...this.state.gainPrices, s.latestPrice]
                     })
                 }
             )
@@ -45,7 +43,7 @@ class DefaultChart extends React.Component {
                     labels: this.state.gainNames,
                     datasets: [{
                         label: "Latest Price",
-                        backgroundColor: this.state.background,
+                        backgroundColor: "rgba(46, 204, 113, 1)",
                         data: this.state.gainPrices,
                         lineTension: 0.0,
                         fill: false,
@@ -77,7 +75,7 @@ class DefaultChart extends React.Component {
                     labels: this.state.loseNames,
                     datasets: [{
                         label: "Latest Price",
-                        backgroundColor: this.state.background,
+                        backgroundColor: "rgba(242, 38, 19, 1)",
                         data: this.state.losePrices,
                         lineTension: 0.0,
                         fill: false,
@@ -97,17 +95,22 @@ class DefaultChart extends React.Component {
 
     render() {
         return (
-           <Grid className='ui two column centered grid'>
-               <Grid.Column width={7} >
-                    < h3 > Gainers </h3>
-                    <Bar ref="chart" data={this.state.dataGain} />
-                </Grid.Column>
-                <Grid.Column width={7}>
-                    < h3 > Losers </h3>
-                    <Bar ref="chart" data={this.state.dataLoss} />
-                </Grid.Column>
-           </Grid> 
-
+            <div>
+                {Object.keys(this.state.gainPrices && this.state.losePrices).length > 0 ? 
+                <Grid className='ui two column centered grid'>
+                    <Grid.Column width={7} >
+                            < h3 > Gainers </h3>
+                            <Bar ref="chart" data={this.state.dataGain} />
+                        </Grid.Column>
+                        <Grid.Column width={7}>
+                            < h3 > Losers </h3>
+                            <Bar ref="chart" data={this.state.dataLoss} />
+                    </Grid.Column>
+                </Grid> : 
+                <div style={{marginTop: "20%"}}>
+                    <Loader active inline='centered' />
+                </div>    }
+        </div>
         )
     }
 }

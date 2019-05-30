@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux';
+import { Button, Form, Grid } from 'semantic-ui-react'
 
 class Signup extends React.Component {
 
@@ -43,15 +44,26 @@ class Signup extends React.Component {
 
     render() {
         return (
-            <div>
-                Signup
-                <form onSubmit={this.submitHandler}>
-                    <input placeholder="Name" name="name" onChange={this.changeHandler} value={this.state.name} type="text" />
-                    <input placeholder="Username" name="username" onChange={this.changeHandler} value={this.state.username} type="text" />
-                    <input placeholder="Password" name="password" onChange={this.changeHandler} value={this.state.password} type="password" />
-                    <button type="submit">Signup</button>
-                </form>
-            </div>
+            <Grid>
+                <Grid.Column width={8} className='ui centered'>
+                     <Form onSubmit={this.submitHandler}>
+                        <Form.Field>
+                        <label>Name</label>
+                        <input placeholder="Name" name="name" onChange={this.changeHandler} value={this.state.name} type="text" />
+                        </Form.Field>
+                        <Form.Field>
+                        <label>Username</label>
+                        <input placeholder="Username" name="username" onChange={this.changeHandler} value={this.state.username} type="text" />
+                        </Form.Field>
+                        <Form.Field>
+                        <label>Password</label>
+                        <input placeholder="Password" name="password" onChange={this.changeHandler} value={this.state.password} type="password" />
+                        </Form.Field>
+                        <Button type='submit'>Signup</Button>
+                    </Form>
+                </Grid.Column>
+            </Grid>
+
         )
     }
 }

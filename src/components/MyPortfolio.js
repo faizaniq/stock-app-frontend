@@ -2,9 +2,8 @@ import React from 'react'
 import Watchlists from './Watchlists'
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom'
-import { Table, Grid, Accordion, Icon } from 'semantic-ui-react'
+import { Table, Grid, Accordion, Icon, Dimmer, Loader, Image, Segment, Input, Label, Button } from 'semantic-ui-react'
 import { Polar } from 'react-chartjs-2'
-
 
 class MyPortfolio extends React.Component {
     state={
@@ -31,6 +30,21 @@ class MyPortfolio extends React.Component {
             color += str[Math.floor(Math.random() * 16)]
         }
         return color
+    }
+
+    dynamicSort = (property) => {
+        var sortOrder = 1;
+        if(property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a,b) {
+            if(sortOrder == -1){
+                return b[property].localeCompare(a[property]);
+            }else{
+                return a[property].localeCompare(b[property]);
+            }        
+        }
     }
 
     componentDidMount() {
@@ -60,11 +74,12 @@ class MyPortfolio extends React.Component {
                         datasets: [{
                             label: "Latest Price",
                             backgroundColor: this.state.background,
-                            data: [...this.state.data, this.props.user.funds] 
+                            data: [...this.state.data, this.props.user.funds]
                         }]
                 }
             })
         })
+        setInterval(this.checkValue, 3000)
     }
 
     fundHandler = (e) => {
@@ -144,10 +159,12 @@ class MyPortfolio extends React.Component {
         }
     }
 
+
+
     checkValue = () => {
         let portfolio = []
         let promisePortfolio = this.props.user.investments.map(s => {
-            if (s.purchase === true) {
+            if (s.purchase === true && s.current_quantity > 0) {
                 return fetch(`https://api.iextrading.com/1.0/stock/${s.ticker}/price`)
                 .then(res => res.json())
                 .then(data => {
@@ -156,7 +173,7 @@ class MyPortfolio extends React.Component {
             }
         })
         Promise.all(promisePortfolio)
-        .then(() => this.setState({portfolio: portfolio.sort()}))
+        .then(() => this.setState({portfolio: portfolio}))
     }
 
     intervalHandler = () => {
@@ -200,7 +217,7 @@ class MyPortfolio extends React.Component {
                     </Table.Header>
 
                     <Table.Body>
-                        {this.state.portfolio.map(s => {
+                        {this.state.portfolio.sort(this.dynamicSort("company")).map(s => {
                             totalPValue = (totalPValue + (s.price * s.quantity))
                             totalCValue = (totalCValue + (s.costBasis * s.quantity))
                             if (s.costBasis < s.price) {
@@ -294,63 +311,79 @@ class MyPortfolio extends React.Component {
     }
 
 
+    // <Button onClick={this.addFunds} icon=<Icon name="sync alternate" onClick={this.intervalHandler}/> />
+
+
     render() {
         const { activeIndex } = this.state        
+        console.log("portfolio", this.state.portfolio)
         return (
-           <div>
-               {this.intervalStart()}
-               <Grid>
-                   <Grid.Column width={8} className='ui two column centered grid'>
-                        <Polar data={this.state.datasets}/>
-                    </Grid.Column>
-                    <Grid.Column width={6} className='ui two column centered grid'>
-                        <Accordion fluid styled>
-                            <Accordion.Title active={activeIndex === 2} index={2} onClick={this.handleClick}>
-                            <Icon name='dropdown' />
-                            Watchlist
-                            </Accordion.Title>
-                            <Accordion.Content active={activeIndex === 2}>
-                            <p>
-                            <Watchlists />
-                            </p>
-                            </Accordion.Content>
-                        </Accordion>
-                    </Grid.Column>
-                </Grid>
-                <br/>
-                <form >
-                    <input type="text" onChange={this.fundHandler} value={this.state.funds}/>
-                    <button onClick={this.addFunds}>Add Funds</button>
-                </form>
-               
-                <button onClick={this.intervalHandler}>Update</button>
-            
-                 
-                <br/>
-                 <Accordion fluid styled>
-                    <Accordion.Title active={activeIndex === 0} index={0} onClick={this.handleClick}>
-                    <Icon name='dropdown' />
-                    Current Holdings
-                    </Accordion.Title>
-                    <Accordion.Content active={activeIndex === 0}>
-                    <p>
-                       {this.state.portfolio.length > 0 ? this.showStocks() : null}
-                    </p>
-                    </Accordion.Content>
-                    <Accordion.Title active={activeIndex === 1} index={1} onClick={this.handleClick}>
-                    <Icon name='dropdown' />
-                    Transaction History
-                    </Accordion.Title>
-                    <Accordion.Content active={activeIndex === 1}>
-                    <p>
-                       {this.transactions()}
-                    </p>
-                    </Accordion.Content>
-                    
-                </Accordion>
-                  
-                
-           </div> 
+        <div>
+        {this.intervalStart()}
+        {Object.keys(this.state.datasets).length > 0 ? 
+        <div>
+            <Grid>
+                <Grid.Column width={8} className='ui two column centered grid'>
+                    <Polar data={this.state.datasets}/> 
+                </Grid.Column>
+                <Grid.Column width={6} className='ui two column centered grid'>
+                    <Accordion fluid styled>
+                        <Accordion.Title active={activeIndex === 2} index={2} onClick={this.handleClick}>
+                        <Icon name='dropdown' />
+                        Watchlist
+                        </Accordion.Title>
+                        <Accordion.Content active={activeIndex === 2}>
+                        <p>
+                        <Watchlists />
+                        </p>
+                        </Accordion.Content>
+                    </Accordion>
+                </Grid.Column>
+            </Grid>
+            <br/>
+            <br/>
+            <Grid>
+                 <Grid.Column width={4} className='ui two column centered grid'>
+                    <form >
+                        <Input labelPosition='right' type='text' placeholder='Amount' onChange={this.fundHandler} value={this.state.funds}>
+                            <Label basic>$</Label>
+                            <input />
+                            <Label>.00</Label>
+                        </Input>
+                        <Button onClick={this.addFunds} content='Add Funds' />
+                    </form> 
+                </Grid.Column>
+                <Grid.Column width={3} className='ui two column centered grid'>
+                </Grid.Column>
+            </Grid>
+            <br/>
+                <Accordion fluid styled>
+                <Accordion.Title active={activeIndex === 0} index={0} onClick={this.handleClick}>
+                <Icon name='dropdown' />
+                Current Holdings
+                </Accordion.Title>
+                <Accordion.Content active={activeIndex === 0}>
+                <p>
+                    {this.state.portfolio.length > 0 ? this.showStocks() : null}
+                </p>
+                </Accordion.Content>
+                <Accordion.Title active={activeIndex === 1} index={1} onClick={this.handleClick}>
+                <Icon name='dropdown' />
+                Transaction History
+                </Accordion.Title>
+                <Accordion.Content active={activeIndex === 1}>
+                <p>
+                    {this.transactions()}
+                </p>
+                </Accordion.Content>          
+            </Accordion>
+        </div> :    
+                <div style={{marginTop: "20%"}}>
+                    <Loader active inline='centered' />
+                </div>    
+                    }
+        </div>
+        
         )
     }
 }
