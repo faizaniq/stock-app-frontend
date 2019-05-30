@@ -1,7 +1,7 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux';
-import { Input, Menu, Segment } from 'semantic-ui-react'
+import { Input, Menu, Segment, Icon } from 'semantic-ui-react'
 
 class NavBar extends React.Component{
 
@@ -23,7 +23,8 @@ class NavBar extends React.Component{
         const { activeItem } = this.state
         return(
         
-            <div class="ui pointing menu">
+            <div className="ui pointing menu bar">
+                <NavLink className="item" to="/"><img src="/Logo.png" /></NavLink>
                 <NavLink className="item" to="/home">Home</NavLink>
                 {this.props.user ? null : <NavLink className="item" to="/login" >Login</NavLink>}
                 {this.props.user ? null : <NavLink className="item" to="/signup" >Signup</NavLink>}

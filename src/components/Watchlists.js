@@ -2,7 +2,7 @@ import React from 'react'
 import StockWatch from './StockWatch'
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom'
-import { Table, Grid, Accordion, Icon } from 'semantic-ui-react'
+import { Table, Grid, Accordion, Icon, Loader } from 'semantic-ui-react'
 
 class Watchlists extends React.Component {
     
@@ -54,9 +54,9 @@ class Watchlists extends React.Component {
 
     render() {
         const { activeIndex } = this.state 
-        console.log(this.state.list)       
         return (
-           <div>
+            <div>
+            {this.state.list.length > 0 ? 
                 <Table celled>
                     <Table.Header>
                     <Table.Row>
@@ -77,7 +77,10 @@ class Watchlists extends React.Component {
                     }
                 </Table.Body>
             </Table>
-                  
+                  : 
+                  <div style={{margin: "auto"}}>
+                    <Loader active inline='centered' />
+                </div>}
            </div> 
 
         )
