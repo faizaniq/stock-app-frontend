@@ -6,7 +6,7 @@ import { Route } from 'react-router-dom'
 import { Line } from 'react-chartjs-2'
 import '../App.css';
 import {companyTickers} from './companyTickers'
-import { Icon, Input, Button, Message, Modal, Header, Grid, Accordion } from 'semantic-ui-react'
+import { Icon, Input, Button, Message, Modal, Header, Grid, Accordion, Dropdown, Loader } from 'semantic-ui-react'
 import DefaultChart from './DefaultChart'
 
 
@@ -140,32 +140,32 @@ class Research extends React.Component {
 
 
     oneDay = () => {
-        this.getData("1d", this.state.currentSearch, "one day")
+        this.getData("1d", this.state.currentSearch, "1 Day")
     }
 
     oneMonth = () => {
-        this.getData("1m", this.state.currentSearch, "one month")
+        this.getData("1m", this.state.currentSearch, "1 Month")
     }
 
     threeMonth = () => {
-        this.getData("3m", this.state.currentSearch, "three month")
+        this.getData("3m", this.state.currentSearch, "3 Month")
     }
 
     sixMonth = () => {
-        this.getData("6m", this.state.currentSearch, "six month")
+        this.getData("6m", this.state.currentSearch, "6 Month")
     }
 
     oneYear = () => {
-        this.getData("1y", this.state.currentSearch, "one year")
+        this.getData("1y", this.state.currentSearch, "1 Year")
     }
 
     twoYear = () => {
-        this.getData("2y", this.state.currentSearch, "two year")
+        this.getData("2y", this.state.currentSearch, "2 Year")
     }
 
 
     fiveYear = () => {
-        this.getData("5y", this.state.currentSearch, "five year")
+        this.getData("5y", this.state.currentSearch, "5 Year")
     }
 
     addToWatchlist = () => {
@@ -317,13 +317,13 @@ class Research extends React.Component {
     }
 
 
-
     render(){
         const { activeIndex } = this.state        
         return (
         <div>
+            <br/>
             <Grid>
-                <Grid.Column width={10} className='ui centered grid'>
+                <Grid.Column width={12} className='ui centered'>
                     <Input className="ui center aligned grid" icon={<Icon name='search'  inverted circular link onClick={this.submitHandler} />} placeholder='Search...' onChange={this.changeHandler}/>
                 </Grid.Column>
             </Grid>
@@ -335,50 +335,43 @@ class Research extends React.Component {
                 <Grid.Column width={10}>
                     {Object.keys(this.state.stock).length > 0 ? <Stock stock={this.state.stock} logo={this.state.logo}/> : null}
                 </Grid.Column>
-                <Grid.Column >
+                <Grid.Column width={10}>
                 {Object.keys(this.state.stock).length > 0 ?
-                <Button.Group>
-                    <Button onClick={this.oneDay}>1 Day</Button>
-                    <Button onClick={this.oneMonth}>1 Month</Button>
-                    <Button onClick={this.threeMonth}>3 Months</Button>
-                    <Button onClick={this.sixMonth}>6 Months</Button>
-                    <Button onClick={this.oneYear}>1 Year</Button>
-                    <Button onClick={this.twoYear}>2 Year</Button>
-                    <Button onClick={this.fiveYear}>5 Year</Button>
-                    <Button onClick={this.addToWatchlist}>Add To Watchlist</Button>
-                <Modal trigger={<Button>Trade</Button>} closeIcon>
-                    <Header icon='archive' content={this.state.stock.companyName} />
-                    <Modal.Content>
-                        Avaliable Funds: ${Number.parseFloat(this.props.user.funds).toFixed(2)}
-                        <br/>
-                        Current Price: ${this.state.stock.latestPrice}
-                        <br/>
-                        Order Total: ${Number.parseFloat(this.state.buyQuantity*this.state.stock.latestPrice).toFixed(2)}
-                        <form onSubmit={this.purchaseStock}>
-                            <input type="number" value={this.state.buyQuantity} onChange={this.quantityHandler} />
-                            <button type="submit">Buy</button>
-                        </form>
-                        Quantity Owned: {this.props.user.investments ? this.currentHolding() : 0}
-                        <form >
-                            <input type="integer" onChange={this.sellQuantityHandler} name="quantity" value={this.state.sellQuantity}/>
-                            <button onClick={this.sell}>Sell</button>
-                        </form>
-                    </Modal.Content>
-                    <Modal.Actions>
-                    <Button color='black'>
-                        <Icon name='remove' /> Buy
-                    </Button>
-                    <Button color='black'>
-                        <Icon name='checkmark' /> Sell
-                    </Button>
-                    </Modal.Actions>
-                </Modal>
-                </Button.Group> : null}
-                    
-                </Grid.Column>
-                <Grid.Column width={12} className='ui two column centered grid'>
-                    {Object.keys(this.state.stock).length > 0 ? <Line ref="chart" data={this.state.chart} /> : null}
-                </Grid.Column>
+                    <Button.Group>
+                        <Button onClick={this.oneDay}>1 Day</Button>
+                        <Button onClick={this.oneMonth}>1 Month</Button>
+                        <Button onClick={this.threeMonth}>3 Months</Button>
+                        <Button onClick={this.sixMonth}>6 Months</Button>
+                        <Button onClick={this.oneYear}>1 Year</Button>
+                        <Button onClick={this.twoYear}>2 Year</Button>
+                        <Button onClick={this.fiveYear}>5 Year</Button>
+                    </Button.Group> : null}
+                    {this.props.user && Object.keys(this.state.stock).length > 0 ? <Button.Group>
+                        <Button onClick={this.addToWatchlist}>Add To Watchlist</Button>
+                        <Modal trigger={<Button>Trade</Button>} closeIcon>
+                            <Header icon='archive' content={this.state.stock.companyName} />
+                            <Modal.Content>
+                                Avaliable Funds: ${Number.parseFloat(this.props.user.funds).toFixed(2)}
+                                <br/>
+                                Current Price: ${this.state.stock.latestPrice}
+                                <br/>
+                                Order Total: ${Number.parseFloat(this.state.buyQuantity*this.state.stock.latestPrice).toFixed(2)}
+                                <form onSubmit={this.purchaseStock}>
+                                    <input type="number" value={this.state.buyQuantity} onChange={this.quantityHandler} />
+                                    <button type="submit">Buy</button>
+                                </form>
+                                Quantity Owned: {this.props.user.investments ? this.currentHolding() : 0}
+                                <form >
+                                    <input type="integer" onChange={this.sellQuantityHandler} name="quantity" value={this.state.sellQuantity}/>
+                                    <button onClick={this.sell}>Sell</button>
+                                </form>
+                            </Modal.Content>
+                        </Modal> 
+                    </Button.Group> : null}
+                    </Grid.Column>
+                    <Grid.Column width={12} className='ui two column centered grid'>
+                        {Object.keys(this.state.stock).length > 0 ? <Line ref="chart" data={this.state.chart} /> : null}
+                    </Grid.Column>
                 
             </Grid>
                     

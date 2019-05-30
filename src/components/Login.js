@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux';
-import { Button, Form } from 'semantic-ui-react'
+import { Button, Form, Grid } from 'semantic-ui-react'
 
 
 class Login extends React.Component{
@@ -41,24 +41,25 @@ class Login extends React.Component{
         })
     }
 
-    /* <form onSubmit={this.submitHandler}>
-                    <input placeholder="Username" name="username" onChange={this.changeHandler} value={this.state.username} type="text" />
-                    <input placeholder="Password" name="password" onChange={this.changeHandler} value={this.state.password} type="password" />
-                    <button type="submit">Login</button>
-                </form> */
-
     render(){
         return(
-            <div>
-                
-                <Form onSubmit={this.submitHandler}>
-                    <Form.Input label='Username' name='username' placeholder='username...' onChange={this.changeHandler} value={this.state.username}/>
-                    <Form.Input label='Password' name='password' placeholder='password...' onChange={this.changeHandler} type='password' value={this.state.password}/>
-                    <Button>Submit</Button>
-                </Form>
+            <Grid>
+                <Grid.Column width={8} className='ui centered'>
+                     <Form onSubmit={this.submitHandler}>
+                        <Form.Field>
+                        <label>Username</label>
+                        <input placeholder='Username' name="username" onChange={this.changeHandler} value={this.state.username}/>
+                        </Form.Field>
+                        <Form.Field>
+                        <label>Password</label>
+                        <input placeholder='Password' name="password" onChange={this.changeHandler} value={this.state.password}/>
+                        </Form.Field>
+                        <Button type='submit'>Submit</Button>
+                    </Form>
+                </Grid.Column>
+            </Grid>
 
 
-            </div>
         )
     }
 }

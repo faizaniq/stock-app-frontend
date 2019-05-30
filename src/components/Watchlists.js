@@ -11,6 +11,20 @@ class Watchlists extends React.Component {
         activeIndex: null
     }
 
+    dynamicSort = (property) => {
+        var sortOrder = 1;
+        if(property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a,b) {
+            if(sortOrder == -1){
+                return b[property].localeCompare(a[property]);
+            }else{
+                return a[property].localeCompare(b[property]);
+            }        
+        }
+    }
 
     checkValue = () => {
         let list = []
@@ -22,11 +36,11 @@ class Watchlists extends React.Component {
             })
         })
         Promise.all(promiseList)
-        .then(() => this.setState({list: list.sort()}))
+        .then(() => this.setState({list: list.sort(this.dynamicSort("company"))}))
     }
 
     componentDidMount(){
-        this.checkValue()
+        setInterval(this.checkValue, 3000)
     }
 
     handleClick = (e, titleProps) => {
@@ -40,7 +54,7 @@ class Watchlists extends React.Component {
 
     render() {
         const { activeIndex } = this.state 
-        console.log(this.props.user.watchlists)       
+        console.log(this.state.list)       
         return (
            <div>
                 <Table celled>
@@ -53,7 +67,7 @@ class Watchlists extends React.Component {
                     </Table.Header>
 
                     <Table.Body>
-                        {this.state.list.map(s => {
+                        {this.state.list.sort(this.dynamicSort("company")).map(s => {
                         return( < Table.Row >
                             <Table.Cell>{s.company}</Table.Cell>
                             <Table.Cell>{s.ticker}</Table.Cell>
