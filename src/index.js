@@ -32,7 +32,6 @@ function reducer(state = initialState, action) {
         case "PURCHASE": 
             return {
                 ...state, user: action.payload
-                // {...state.user, funds: action.payload}
             }
         case "NEW_STOCK": 
             return {

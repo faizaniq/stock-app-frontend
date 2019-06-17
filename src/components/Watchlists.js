@@ -1,8 +1,6 @@
 import React from 'react'
-import StockWatch from './StockWatch'
 import { connect } from 'react-redux';
-import { Route } from 'react-router-dom'
-import { Table, Grid, Accordion, Icon, Loader } from 'semantic-ui-react'
+import { Table, Loader } from 'semantic-ui-react'
 
 class Watchlists extends React.Component {
     
@@ -18,7 +16,7 @@ class Watchlists extends React.Component {
             property = property.substr(1);
         }
         return function (a,b) {
-            if(sortOrder == -1){
+            if(sortOrder === -1){
                 return b[property].localeCompare(a[property]);
             }else{
                 return a[property].localeCompare(b[property]);
@@ -29,7 +27,7 @@ class Watchlists extends React.Component {
     checkValue = () => {
         let list = []
         let promiseList = this.props.user.watchlists.map(s => {
-            return fetch(`https://api.iextrading.com/1.0/stock/${s.ticker}/quote`)
+            return fetch(`https://cloud.iexapis.com/stable/stock/${s.ticker}/quote?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
             .then(res => res.json())
             .then(data => {
                 list.push({company: s.company, ticker: s.ticker, price: Number.parseFloat(data.latestPrice).toFixed(2)})

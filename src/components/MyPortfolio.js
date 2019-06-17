@@ -1,8 +1,7 @@
 import React from 'react'
 import Watchlists from './Watchlists'
 import { connect } from 'react-redux';
-import { Route } from 'react-router-dom'
-import { Table, Grid, Accordion, Icon, Dimmer, Loader, Image, Segment, Input, Label, Button } from 'semantic-ui-react'
+import { Table, Grid, Accordion, Icon, Loader, Input, Label, Button } from 'semantic-ui-react'
 import { Polar } from 'react-chartjs-2'
 
 class MyPortfolio extends React.Component {
@@ -39,7 +38,7 @@ class MyPortfolio extends React.Component {
             property = property.substr(1);
         }
         return function (a,b) {
-            if(sortOrder == -1){
+            if(sortOrder === -1){
                 return b[property].localeCompare(a[property]);
             }else{
                 return a[property].localeCompare(b[property]);
@@ -58,7 +57,7 @@ class MyPortfolio extends React.Component {
                     labels: [...prevState.labels, s.ticker], 
                     background: [...prevState.background, this.getColor()]
                 }))
-                return fetch(`https://api.iextrading.com/1.0/stock/${s.ticker}/price`)
+                return fetch(`https://cloud.iexapis.com/stable/stock/${s.ticker}/price?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
                 .then(res => res.json())
                 .then(data => {
                     portfolio.push({company: s.company, ticker: s.ticker, costBasis: s.price, price: Number.parseFloat(+data).toFixed(2), quantity: s.current_quantity})
@@ -165,7 +164,7 @@ class MyPortfolio extends React.Component {
         let portfolio = []
         let promisePortfolio = this.props.user.investments.map(s => {
             if (s.purchase === true && s.current_quantity > 0) {
-                return fetch(`https://api.iextrading.com/1.0/stock/${s.ticker}/price`)
+                return fetch(`https://cloud.iexapis.com/stable/stock/${s.ticker}/price?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
                 .then(res => res.json())
                 .then(data => {
                     portfolio.push({company: s.company, ticker: s.ticker, costBasis: Number.parseFloat(s.price).toFixed(2), price: Number.parseFloat(data).toFixed(2), quantity: s.current_quantity})
@@ -309,9 +308,6 @@ class MyPortfolio extends React.Component {
                 </Table>
             )
     }
-
-
-    // <Button onClick={this.addFunds} icon=<Icon name="sync alternate" onClick={this.intervalHandler}/> />
 
 
     render() {

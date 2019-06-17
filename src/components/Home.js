@@ -2,11 +2,10 @@ import React from 'react'
 import Stock from './Stock'
 import News from './News'
 import { connect } from 'react-redux';
-import { Route } from 'react-router-dom'
 import { Line } from 'react-chartjs-2'
 import '../App.css';
 import {companyTickers} from './companyTickers'
-import { Icon, Input, Button, Message, Modal, Header, Grid, Accordion, Dropdown, Loader } from 'semantic-ui-react'
+import { Icon, Input, Button, Message, Modal, Header, Grid, Accordion} from 'semantic-ui-react'
 import DefaultChart from './DefaultChart'
 
 
@@ -49,12 +48,12 @@ class Research extends React.Component {
     getData = (time, search, title) => {
         let close = []
         let date = []
-        fetch(`https://api.iextrading.com/1.0/stock/${search}/quote`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/quote?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
             .then(res => res.json())
             .then(stock => this.setState({
                 stock: stock
             }))
-        fetch(`https://api.iextrading.com/1.0/stock/${search}/chart/${time}`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/chart/${time}?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
             .then(res => res.json())
             .then(data => {
                 data.map(p => {
@@ -72,11 +71,11 @@ class Research extends React.Component {
                         labels: this.state.date,
                         datasets: [{
                             label: title,
-                            backgroundColor: "rgba(75,192,192,0.4)",
+                            backgroundColor: "rgba(100, 100, 100, 1)",
                             data: this.state.data,
                             lineTension: 0.0,
                             fill: false,
-                            borderColor: "rgba(75,192,192,1)",
+                            borderColor: "rgba(100, 100, 100, 1)",
                             pointHoverRadius: 2,
                             pointHoverBackgroundColor: "rgba(75,192,192,1)",
                             pointHoverBorderColor: "rgba(220,220,220,1)",
@@ -96,7 +95,7 @@ class Research extends React.Component {
 
 
     getNews = (search) => {
-        fetch(`https://api.iextrading.com/1.0/stock/${search}/news/last/10`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/news?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
         .then(res => res.json())
         .then(data => {
             this.setState({
@@ -106,7 +105,7 @@ class Research extends React.Component {
     }
 
     getLogo = (search) => {
-        fetch(`https://api.iextrading.com/1.0/stock/${search}/logo`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/logo?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
         .then(res => res.json())
         .then(data => {
             this.setState({
@@ -309,7 +308,8 @@ class Research extends React.Component {
                         <h3>{n.headline}</h3>
                         <p>{n.datetime}</p>
                         <h5>{n.source}</h5>
-                        <p>{n.summary} <a href={n.url} target="_blank"><Icon name="globe" /></a> </p>
+                        <img src={n.image} width="325" height="250"/>
+                        <p>{n.summary}</p><a href={n.url} target="_blank"><Icon name="globe" /></a>
                         <br/>
                     </div>
                 )
@@ -348,23 +348,26 @@ class Research extends React.Component {
                     </Button.Group> : null}
                     {this.props.user && Object.keys(this.state.stock).length > 0 ? <Button.Group>
                         <Button onClick={this.addToWatchlist}>Add To Watchlist</Button>
-                        <Modal trigger={<Button>Trade</Button>} closeIcon>
+                        <Modal trigger={<Button>Trade</Button>} style={{width: "30%"}} closeIcon>
                             <Header icon='archive' content={this.state.stock.companyName} />
-                            <Modal.Content>
-                                Avaliable Funds: ${Number.parseFloat(this.props.user.funds).toFixed(2)}
+                            <Modal.Content >
+                            <div style={{marginBottom: 0, textAlign: "center"}}>
+                                <h3>Avaliable Funds: ${Number.parseFloat(this.props.user.funds).toFixed(2)}</h3>
                                 <br/>
-                                Current Price: ${this.state.stock.latestPrice}
+                                <h3>Current Price: ${this.state.stock.latestPrice}</h3>
+                                <br/> 
+                                <h3>Order Total: ${Number.parseFloat(this.state.buyQuantity*this.state.stock.latestPrice).toFixed(2)}</h3>
                                 <br/>
-                                Order Total: ${Number.parseFloat(this.state.buyQuantity*this.state.stock.latestPrice).toFixed(2)}
-                                <form onSubmit={this.purchaseStock}>
-                                    <input type="number" value={this.state.buyQuantity} onChange={this.quantityHandler} />
-                                    <button type="submit">Buy</button>
+                                <h3>Quantity Owned: {this.props.user.investments ? this.currentHolding() : 0}</h3>
+                                 <form onSubmit={this.purchaseStock}>
+                                    <input type="integer" value={this.state.buyQuantity} onChange={this.quantityHandler} />
+                                    <Button size="tiny" type="submit">Buy</Button>
                                 </form>
-                                Quantity Owned: {this.props.user.investments ? this.currentHolding() : 0}
-                                <form >
-                                    <input type="integer" onChange={this.sellQuantityHandler} name="quantity" value={this.state.sellQuantity}/>
-                                    <button onClick={this.sell}>Sell</button>
+                                <form onSubmit={this.sell}>
+                                    <input type="integer" onChange={this.sellQuantityHandler} name="quantity" value={this.state.sellQuantity} />
+                                    <Button size="tiny" type="submit">Sell</Button>
                                 </form>
+                            </div>
                             </Modal.Content>
                         </Modal> 
                     </Button.Group> : null}

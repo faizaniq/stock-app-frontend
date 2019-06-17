@@ -1,8 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import { Bar } from 'react-chartjs-2'
-import { Line } from 'react-chartjs-2'
-import { Icon, Input, Button, Message, Modal, Header, Grid, Loader } from 'semantic-ui-react'
+import { Grid, Loader } from 'semantic-ui-react'
 
 import '../App.css';
 
@@ -27,7 +26,7 @@ class DefaultChart extends React.Component {
     }
 
     componentDidMount(){
-        fetch('https://api.iextrading.com/1.0/stock/market/list/gainers')
+        fetch('https://cloud.iexapis.com/stable/stock/market/list/gainers?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01')
         .then(res => res.json())
         .then(data => { data.map(s => {
                     this.setState({
@@ -59,7 +58,7 @@ class DefaultChart extends React.Component {
             })
             
         })
-        fetch('https://api.iextrading.com/1.0/stock/market/list/losers')
+        fetch('https://cloud.iexapis.com/stable/stock/market/list/losers?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01')
         .then(res => res.json())
         .then(data => { data.map(s => {
                     this.setState({
