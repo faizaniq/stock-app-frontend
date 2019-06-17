@@ -1,7 +1,6 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux';
-import { Input, Menu, Segment, Icon } from 'semantic-ui-react'
 
 class NavBar extends React.Component{
 

@@ -1,7 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux';
-import { Route } from 'react-router-dom'
-import { Image, Item } from 'semantic-ui-react'
+import { Item } from 'semantic-ui-react'
 
 
 class Stock extends React.Component {
