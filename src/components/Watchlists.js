@@ -27,7 +27,7 @@ class Watchlists extends React.Component {
     checkValue = () => {
         let list = []
         let promiseList = this.props.user.watchlists.map(s => {
-            return fetch(`https://cloud.iexapis.com/stable/stock/${s.ticker}/quote?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
+            return fetch(`https://cloud.iexapis.com/stable/stock/${s.ticker}/quote?token=${process.env.REACT_APP_API_KEY}`)
             .then(res => res.json())
             .then(data => {
                 list.push({company: s.company, ticker: s.ticker, price: Number.parseFloat(data.latestPrice).toFixed(2)})

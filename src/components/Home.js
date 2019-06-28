@@ -47,12 +47,12 @@ class Research extends React.Component {
     getData = (time, search, title) => {
         let close = []
         let date = []
-        fetch(`https://cloud.iexapis.com/stable/stock/${search}/quote?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/quote?token=${process.env.REACT_APP_API_KEY}`)
             .then(res => res.json())
             .then(stock => this.setState({
                 stock: stock
             }))
-        fetch(`https://cloud.iexapis.com/stable/stock/${search}/chart/${time}?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/chart/${time}?token=${process.env.REACT_APP_API_KEY}`)
             .then(res => res.json())
             .then(data => {
                 data.map(p => {
@@ -94,7 +94,7 @@ class Research extends React.Component {
 
 
     getNews = (search) => {
-        fetch(`https://cloud.iexapis.com/stable/stock/${search}/news?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/news?token=${process.env.REACT_APP_API_KEY}`)
         .then(res => res.json())
         .then(data => {
             this.setState({
@@ -104,7 +104,7 @@ class Research extends React.Component {
     }
 
     getLogo = (search) => {
-        fetch(`https://cloud.iexapis.com/stable/stock/${search}/logo?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/logo?token=${process.env.REACT_APP_API_KEY}`)
         .then(res => res.json())
         .then(data => {
             this.setState({
@@ -317,6 +317,7 @@ class Research extends React.Component {
 
 
     render(){
+        console.log(process.env.REACT_APP_API_KEY)
         const { activeIndex } = this.state        
         return (
         <div>

@@ -57,7 +57,7 @@ class MyPortfolio extends React.Component {
                     labels: [...prevState.labels, s.ticker], 
                     background: [...prevState.background, this.getColor()]
                 }))
-                return fetch(`https://cloud.iexapis.com/stable/stock/${s.ticker}/price?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
+                return fetch(`https://cloud.iexapis.com/stable/stock/${s.ticker}/price?token=${process.env.REACT_APP_API_KEY}`)
                 .then(res => res.json())
                 .then(data => {
                     portfolio.push({company: s.company, ticker: s.ticker, costBasis: s.price, price: Number.parseFloat(+data).toFixed(2), quantity: s.current_quantity})
@@ -164,7 +164,7 @@ class MyPortfolio extends React.Component {
         let portfolio = []
         let promisePortfolio = this.props.user.investments.map(s => {
             if (s.purchase === true && s.current_quantity > 0) {
-                return fetch(`https://cloud.iexapis.com/stable/stock/${s.ticker}/price?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01`)
+                return fetch(`https://cloud.iexapis.com/stable/stock/${s.ticker}/price?token=${process.env.REACT_APP_API_KEY}`)
                 .then(res => res.json())
                 .then(data => {
                     portfolio.push({company: s.company, ticker: s.ticker, costBasis: Number.parseFloat(s.price).toFixed(2), price: Number.parseFloat(data).toFixed(2), quantity: s.current_quantity})

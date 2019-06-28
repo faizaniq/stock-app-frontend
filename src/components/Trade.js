@@ -7,7 +7,7 @@ import '../App.css';
 import {companyTickers} from './companyTickers'
 
 
-class Trade     extends React.Component {
+class Trade extends React.Component {
 
     state={
         currentSearch: "",
@@ -31,12 +31,12 @@ class Trade     extends React.Component {
     getData = (time, search, title) => {
         let close = []
         let date = []
-        fetch(`https://api.iextrading.com/1.0/stock/${search}/quote`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/quote?token=${process.env.REACT_APP_API_KEY}`)
             .then(res => res.json())
             .then(stock => this.setState({
                 stock: stock
             }))
-        fetch(`https://api.iextrading.com/1.0/stock/${search}/chart/${time}`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${search}/chart/${time}?token=${process.env.REACT_APP_API_KEY}`)
             .then(res => res.json())
             .then(data => {
                 data.map(p => {

@@ -26,7 +26,7 @@ class DefaultChart extends React.Component {
     }
 
     componentDidMount(){
-        fetch('https://cloud.iexapis.com/stable/stock/market/list/gainers?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01')
+        fetch(`https://cloud.iexapis.com/stable/stock/market/list/gainers?token=${process.env.REACT_APP_API_KEY}`)
         .then(res => res.json())
         .then(data => { data.map(s => {
                     this.setState({
@@ -58,7 +58,7 @@ class DefaultChart extends React.Component {
             })
             
         })
-        fetch('https://cloud.iexapis.com/stable/stock/market/list/losers?token=pk_3d2d0ca1d6224b5da4270b1ff4414d01')
+        fetch(`https://cloud.iexapis.com/stable/stock/market/list/losers?token=${process.env.REACT_APP_API_KEY}`)
         .then(res => res.json())
         .then(data => { data.map(s => {
                     this.setState({
