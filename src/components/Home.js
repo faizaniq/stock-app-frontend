@@ -1,6 +1,5 @@
 import React from 'react'
 import Stock from './Stock'
-import News from './News'
 import { connect } from 'react-redux';
 import { Line } from 'react-chartjs-2'
 import '../App.css';
@@ -386,7 +385,7 @@ class Research extends React.Component {
                 <Accordion.Content active={activeIndex === 0}>
                     {this.state.news ? this.displayNews() : null}
                 </Accordion.Content>
-            </Accordion> : <News />}
+            </Accordion> : null}
             
         </div> 
         )
