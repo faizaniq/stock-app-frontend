@@ -25,9 +25,6 @@ class Trade extends React.Component {
         })
     }
 
-
-
-
     getData = (time, search, title) => {
         let close = []
         let date = []

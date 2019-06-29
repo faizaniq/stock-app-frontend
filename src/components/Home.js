@@ -266,7 +266,7 @@ class Research extends React.Component {
 
     sell = (e) => {
         e.preventDefault()
-        fetch(`https://api.iextrading.com/1.0/stock/${this.state.stock.symbol}/quote`)
+        fetch(`https://cloud.iexapis.com/stable/stock/${this.state.stock.symbol}/quote?token=${process.env.REACT_APP_API_KEY}`)
         .then(res => res.json())
         .then(stock => this.setState({
             stock: stock
@@ -317,7 +317,6 @@ class Research extends React.Component {
 
 
     render(){
-        console.log(process.env.REACT_APP_API_KEY)
         const { activeIndex } = this.state        
         return (
         <div>
